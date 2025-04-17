@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rey Studio</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Screen 1: Welcome -->
+    <div class="screen active" id="screen1">
+        <h1>Rey Studio</h1>
+        <p>Create beautiful photo strips with your favorite moments</p>
+        <button onclick="showScreen('screen2')">Get Started</button>
+    </div>
+
+    <!-- Screen 2: Instructions -->
+    <div class="screen" id="screen2">
+        <h1>How It Works</h1>
+        <p>We'll guide you through creating a personalized photo strip. Choose a template, take photos, and customize
+            your creation.</p>
+        <button onclick="showScreen('screen3-template')">Continue</button>
+    </div>
+
+    <!-- Screen 3: Template Selection -->
+    <div class="screen" id="screen3-template">
+        <h1>Choose Template</h1>
+        <p>Select a layout for your photo strip</p>
+
+        <div class="template-options">
+            <div class="template-option vertical-2 selected" onclick="selectTemplate(this, 'vertical-2')">
+                <h3>Vertical 2</h3>
+                <div class="template-preview">
+                    <div class="template-preview-cell"></div>
+                    <div class="template-preview-cell"></div>
+                </div>
+            </div>
+            <div class="template-option vertical-3" onclick="selectTemplate(this, 'vertical-3')">
+                <h3>Vertical 3</h3>
+                <div class="template-preview">
+                    <div class="template-preview-cell"></div>
+                    <div class="template-preview-cell"></div>
+                    <div class="template-preview-cell"></div>
+                </div>
+            </div>
+            <div class="template-option vertical-4" onclick="selectTemplate(this, 'vertical-4')">
+                <h3>Vertical 4</h3>
+                <div class="template-preview">
+                    <div class="template-preview-cell"></div>
+                    <div class="template-preview-cell"></div>
+                    <div class="template-preview-cell"></div>
+                    <div class="template-preview-cell"></div>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="initCamera()">Continue</button>
+    </div>
+
+    <!-- Screen 4: Camera View -->
+    <div class="screen" id="screen4-camera">
+        <h1>Take Photos</h1>
+        <div class="error-message" id="cameraError"></div>
+        <div class="capture-preview-container">
+            <div class="camera-wrapper">
+                <div class="camera-container">
+                    <video id="cameraView" autoplay playsinline></video>
+                    <div class="flash" id="flash"></div>
+                    <div class="camera-grid" id="cameraGrid"></div>
+                </div>
+                <div id="countdown"></div>
+                <button onclick="capturePhoto()" id="captureBtn">Capture</button>
+            </div>
+
+            <div class="preview-sidebar" id="previewSidebar">
+                <!-- Thumbnails will be added here -->
+            </div>
+        </div>
+        <div class="camera-controls">
+            <button onclick="switchCamera()">Switch Camera</button>
+            <button onclick="toggleFlash()" id="flashBtn">Flash: Off</button>
+            <button onclick="toggleGrid()" id="gridBtn">Grid: Off</button>
+            
+            <button onclick="retakeLastPhoto()" class="secondary">Retake Last</button>
+            <button onclick="retakeAllPhotos()" class="secondary">Retake All</button>
+        </div>
+        
+    </div>
+
+    <!-- Screen 5: Customization -->
+    <div class="screen" id="screen5-preview">
+        <h1>Customize</h1>
+        <p>Add filters, backgrounds, and stickers to your photo strip</p>
+
+        <div id="capture-container" style="background-size: cover;">
+            <div class="strip-template" id="stripTemplate">
+                <!-- Photos will be inserted here -->
+            </div>
+            <div class="photo-footer">
+                <div class="footer-title">Rey Studio</div>
+                <div class="footer-subtitle">Memories Last Forever</div>
+            </div>
+        </div>
+
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="openTab('filter-tab')">Filters</button>
+            <button class="tab-btn" onclick="openTab('background-tab')">Background</button>
+            <button class="tab-btn" onclick="openTab('sticker-tab')">Stickers</button>
+            <button class="tab-btn" onclick="openTab('frame-tab')">Frames</button>
+        </div>
+
+        <div id="filter-tab" class="tab-content active">
+            <div class="filter-options">
+                <div class="filter-option selected" onclick="applyFilter('normal')">
+                    <div class="filter-preview filter-normal"
+                        style="background-image: url('https://picsum.photos/200/200')"></div>
+                    <div class="filter-name">Normal</div>
+                </div>
+                <div class="filter-option" onclick="applyFilter('clarendon')">
+                    <div class="filter-preview filter-clarendon"
+                        style="background-image: url('https://picsum.photos/200/200')"></div>
+                    <div class="filter-name">Clarendon</div>
+                </div>
+                <div class="filter-option" onclick="applyFilter('gingham')">
+                    <div class="filter-preview filter-gingham"
+                        style="background-image: url('https://picsum.photos/200/200')"></div>
+                    <div class="filter-name">Gingham</div>
+                </div>
+                <div class="filter-option" onclick="applyFilter('moon')">
+                    <div class="filter-preview filter-moon"
+                        style="background-image: url('https://picsum.photos/200/200')"></div>
+                    <div class="filter-name">Moon</div>
+                </div>
+                <div class="filter-option" onclick="applyFilter('lark')">
+                    <div class="filter-preview filter-lark"
+                        style="background-image: url('https://picsum.photos/200/200')"></div>
+                    <div class="filter-name">Lark</div>
+                </div>
+                <div class="filter-option" onclick="applyFilter('reyes')">
+                    <div class="filter-preview filter-reyes"
+                        style="background-image: url('https://picsum.photos/200/200')"></div>
+                    <div class="filter-name">Reyes</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="background-tab" class="tab-content">
+            <div class="background-options">
+                <div class="background-option selected" onclick="selectBackground(this, '#FFD1D1')">
+                    <div class="background-preview" style="background-color: #FFD1D1;"></div>
+                </div>
+                <div class="background-option" onclick="selectBackground(this, '#EDDBC7')">
+                    <div class="background-preview" style="background: #EDDBC7"></div>
+                </div>
+                <div class="background-option" onclick="selectBackground(this, '#B7C4CF')">
+                    <div class="background-preview" style="background: #B7C4CF"></div>
+                </div>
+                <div class="background-option" onclick="selectBackground(this, '#DC8686')">
+                    <div class="background-preview" style="background: #DC8686"></div>
+                </div>
+                <div class="background-option" onclick="selectBackground(this, '#F0DBAF')">
+                    <div class="background-preview" style="background: #F0DBAF"></div>
+                </div>
+                <div class="background-option" onclick="selectBackground(this, '#7ED7C1')">
+                    <div class="background-preview" style="background: #7ED7C1"></div>
+                </div>
+                <div class="background-option" onclick="selectBackground(this, 'url(1.png)')">
+                    <div class="background-preview" style="background-image: url('1.png'); background-size: cover">
+                    </div>
+                </div>
+                <div class="background-option" onclick="selectBackground(this, 'url(2.png)')">
+                    <div class="background-preview" style="background-image: url('2.png'); background-size: cover">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="sticker-tab" class="tab-content">
+            <div class="sticker-options">
+                <div class="sticker-option" onclick="addSticker('Sticker.png')">
+                    <div class="sticker-preview" style="background-image: url('Sticker.png')"></div>
+                </div>
+                <div class="sticker-option" onclick="addSticker('bear.png')">
+                    <div class="sticker-preview" style="background-image: url('bear.png')"></div>
+                </div>
+                <div class="sticker-option" onclick="addSticker('love.png')">
+                    <div class="sticker-preview" style="background-image: url('love.png')"></div>
+                </div>
+                <div class="sticker-option" onclick="addSticker('cat.png')">
+                    <div class="sticker-preview" style="background-image: url('cat.png')"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="frame-tab" class="tab-content">
+            <div class="frame-options">
+                <div class="frame-option" onclick="applyFrame('none')">
+                    <div class="frame-preview" style="border: none;">None</div>
+                </div>
+                <div class="frame-option" onclick="applyFrame('polaroid')">
+                    <div class="frame-preview polaroid-frame">Polaroid</div>
+                </div>
+                <div class="frame-option" onclick="applyFrame('vintage')">
+                    <div class="frame-preview vintage-frame">Vintage</div>
+                </div>
+                <div class="frame-option" onclick="applyFrame('instax')">
+                    <div class="frame-preview instax-frame">Instax</div>
+                </div>
+                <div class="frame-option" onclick="applyFrame('wood')">
+                    <div class="frame-preview wood-frame">Wood</div>
+                </div>
+                <div class="frame-option" onclick="applyFrame('gold')">
+                    <div class="frame-preview gold-frame">Gold</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="secondary" onclick="returnToCamera()">Retake</button>
+            <button onclick="downloadWithHtml2Canvas()" id="downloadBtn">Download</button>
+            <div class="spinner" id="downloadSpinner"></div>
+        </div>
+        <div class="error-message" id="downloadError"></div>
+    </div>
+
+    <script src="script.js"></script>
+      
+    </script>
+</body>
+
+</html>
