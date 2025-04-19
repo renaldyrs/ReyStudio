@@ -7,7 +7,746 @@
     <title>Rey Studio</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: #fafafa;
+    color: #333;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    text-align: center;
+}
+
+.screen.active {
+    display: flex;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-weight: 500;
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #555;
+    font-weight: 400;
+}
+
+p {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    color: #777;
+    max-width: 500px;
+    line-height: 1.6;
+}
+
+button {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 0.8rem 2.5rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+button:hover {
+    background-color: #222;
+    transform: translateY(-1px);
+}
+
+button.secondary {
+    background-color: transparent;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+button.secondary:hover {
+    background-color: #f5f5f5;
+}
+
+/* Screen 1: Welcome */
+#screen1 {
+    background-color: #fafafa;
+}
+
+/* Screen 2: Instructions */
+#screen2 {
+    background-color: #fafafa;
+}
+
+/* Screen 3: Template Selection */
+.template-options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    margin: 2rem 0;
+    width: 100%;
+    max-width: 800px;
+}
+
+.template-option {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    width: 220px;
+    border: 1px solid #eee;
+}
+
+.template-option:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.template-option.selected {
+    border: 1px solid #333;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.template-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    height: 120px;
+    margin-top: 1rem;
+}
+
+.template-preview-cell {
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    flex: 1;
+}
+
+/* Screen 4: Camera View */
+.camera-container {
+    position: relative;
+    width: 90%;
+    max-width: 500px;
+    margin: 1.5rem auto;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 100px rgb(255, 150, 150);
+}
+
+#cameraView {
+    width: 100%;
+    display: block;
+    background: #333;
+}
+
+.flash {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    opacity: 0;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.flash-animation {
+    animation: flash 0.3s ease-out;
+}
+
+@keyframes flash {
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+#countdown {
+    font-size: 1.2rem;
+    margin: 1rem 0;
+    color: #333;
+    font-weight: 500;
+}
+
+/* Screen 5: Customization */
+#capture-container {
+    background-color: white;
+    border-radius: 8px;
+    margin: 1rem 0;
+    width: 90%;
+    max-width: 250px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    border: 1px solid #eee;
+}
+
+/* Update the strip template container */
+.strip-template {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: transparent;
+    padding: 1rem;
+    width: 100%;
+    max-width: 300px; /* Lebar maksimum untuk strip vertikal */
+    margin: 0 auto;
+}
+
+.strip-photo {
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    border-radius: 4px;
+    position: relative;
+}
+
+.strip-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Vertical strip variations */
+.vertical-2 .strip-photo {
+    height: 180px;
+    
+}
+
+.vertical-3 .strip-photo {
+    height: 160px;
+}
+
+.vertical-4 .strip-photo {
+    height: 180px;
+}
+
+/* Filter, Background, Sticker Options */
+.filter-options,
+.background-options,
+.sticker-options {
+    display: flex;
+    overflow-x: auto;
+    gap: 0.8rem;
+    padding: 1rem 0;
+    margin: 1rem 0;
+    width: 100%;
+    max-width: 800px;
+}
+
+.filter-option,
+.background-option,
+.sticker-option {
+    min-width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+    border: 1px solid #eee;
+}
+
+.filter-option:hover,
+.background-option:hover,
+.sticker-option:hover {
+    transform: scale(1.03);
+}
+
+.filter-option.selected,
+.background-option.selected,
+.sticker-option.selected {
+    border: 1px solid #333;
+}
+
+.filter-preview,
+.background-preview,
+.sticker-preview {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+}
+
+.filter-name {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 0.7rem;
+    padding: 0.3rem;
+    text-align: center;
+}
+
+/* Instagram Filter Classes */
+.filter-normal {
+    filter: none;
+}
+
+.filter-clarendon {
+    filter: contrast(1.2) saturate(1.35);
+}
+
+.filter-gingham {
+    filter: contrast(0.9) brightness(1.1) saturate(0.9) sepia(0.2);
+}
+
+.filter-moon {
+    filter: brightness(1.1) contrast(0.9) saturate(0.6) sepia(0.3);
+}
+
+.filter-lark {
+    filter: contrast(0.9) brightness(1.1) saturate(1.1);
+}
+
+.filter-reyes {
+    filter: contrast(0.85) brightness(1.1) saturate(0.75) sepia(0.3);
+}
+
+/* Tab navigation */
+.tab-nav {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+    gap: 0.5rem;
+}
+
+.tab-btn {
+    padding: 0.5rem 1rem;
+    background: #f5f5f5;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.tab-btn.active {
+    background: #333;
+    color: white;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Photo Footer */
+.photo-footer {
+    text-align: center;
+    padding: 1rem 0 0;
+    background: transparent;
+    margin-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.footer-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.footer-subtitle {
+    font-size: 0.8rem;
+    color: #777;
+    margin-top: 0.2rem;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    justify-content: center;
+}
+
+/* Sticker elements */
+.sticker {
+    position: absolute;
+    z-index: 100;
+    cursor: move;
+    user-select: none;
+    transform-origin: center;
+    transition: transform 0.1s;
+}
+
+.sticker img {
+    width: 100%;
+    height: auto;
+}
+
+.sticker-controls {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    display: none;
+    z-index: 101;
+}
+
+.sticker:hover .sticker-controls {
+    display: block;
+}
+
+.sticker-delete {
+    background: #ff6b6b;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.8rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.sticker-resize {
+    position: absolute;
+    bottom: -8px;
+    right: -8px;
+    width: 16px;
+    height: 16px;
+    background: #333;
+    border-radius: 50%;
+    cursor: nwse-resize;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+    }
+
+    .template-options {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .template-option {
+        width: 80%;
+    }
+
+    .filter-option,
+    .background-option,
+    .sticker-option {
+        width: 70px;
+        height: 70px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    h2 {
+        font-size: 1.1rem;
+    }
+
+    .screen {
+        padding: 1.5rem;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .action-buttons button {
+        width: 100%;
+    }
+
+    .vertical-2 .strip-photo {
+        height: 200px;
+    }
+
+    .vertical-3 .strip-photo {
+        height: 140px;
+    }
+
+    .vertical-4 .strip-photo {
+        height: 100px;
+    }
+
+    .filter-option,
+    .background-option,
+    .sticker-option {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+@media print {
+
+    .sticker-controls,
+    .sticker-resize {
+        display: none !important;
+    }
+}
+
+.capture-preview-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 900px;
+    margin: 1rem auto;
+}
+
+.camera-wrapper {
+    flex: 1;
+    max-width: 500px;
+}
+
+.preview-sidebar {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.preview-thumbnail {
+    width: 70%;
+    height: 100px;
+    border-radius: 5px;
+    object-fit: cover;
+    border: 2px solid #eee;
+    transition: all 0.2s;
+}
+
+.preview-thumbnail:hover {
+    border-color: #333;
+    transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+    .capture-preview-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .preview-sidebar {
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .preview-thumbnail {
+        width: 80px;
+        height: 80px;
+    }
+}
+
+.frame-options {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    overflow-x: auto;
+}
+
+.frame-option {
+    min-width: 100px;
+    cursor: pointer;
+}
+
+.frame-preview {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f0;
+    border-radius: 4px;
+}
+
+/* Frame Styles */
+/* Frame Styles */
+.polaroid-frame {
+    border: 10px solid white;
+    border-bottom: 30px solid white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: white;
+}
+
+.vintage-frame {
+    border: 5px solid #d4c9a8;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.1), 0 0 8px rgba(0, 0, 0, 0.2);
+    background-color: #f0e8d0;
+}
+
+.instax-frame {
+    border: 8px solid #f0f0f0;
+    border-bottom: 15px solid #f0f0f0;
+    background-color: #f8f8f8;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.wood-frame {
+    border: 10px solid transparent;
+    padding: 5px;
+    background:
+        linear-gradient(to right, #8B4513, #A0522D) border-box;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.gold-frame {
+    border: 8px solid transparent;
+    padding: 3px;
+    background:
+        linear-gradient(135deg, #FFD700, #D4AF37) border-box;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.neon-frame {
+    border: 2px solid #00f2fe;
+    box-shadow: 0 0 10px #00f2fe, inset 0 0 5px #00f2fe;
+    background-color: black;
+}
+
+.polaroid-color-frame {
+    border: 10px solid #ff9a9e;
+    border-bottom: 30px solid #ff9a9e;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #ff9a9e;
+}
+
+.gold-frame {
+    border: 12px solid transparent;
+    padding: 5px;
+    background:
+        linear-gradient(135deg, #FFD700, #D4AF37, #FFD700) border-box;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.frame-preview {
+    height: 80px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5;
+    background-size: cover;
+    color: #333;
+    font-weight: 500;
+    border-radius: 4px;
+}
+
+.camera-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.camera-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.3) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.3) 1px, transparent 1px);
+    background-size: 25% 25%;
+    display: none;
+}
+
+.preview-thumbnail {
+    position: relative;
+    cursor: pointer;
+}
+
+.preview-thumbnail:hover::after {
+    content: "×";
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #ff6b6b;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* Loading spinner */
+.spinner {
+    display: none;
+    width: 40px;
+    height: 40px;
+    margin: 20px auto;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top: 4px solid #333;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Error message */
+.error-message {
+    color: #ff6b6b;
+    margin: 1rem 0;
+    font-weight: 500;
+    display: none;
+}
+
+
+    </style>
 </head>
 
 <body>
@@ -101,8 +840,8 @@
                 <!-- Photos will be inserted here -->
             </div>
             <div class="photo-footer">
-                <div class="footer-title">Rey Studio</div>
-                <div class="footer-subtitle">Memories Last Forever</div>
+                <div class="footer-title"><img src="logo.png" alt="" style="height: 50%; width: 50%;"></div>
+                <div class="footer-subtitle"></div>
             </div>
         </div>
 
@@ -150,31 +889,30 @@
 
         <div id="background-tab" class="tab-content">
             <div class="background-options">
-                <div class="background-option selected" onclick="selectBackground(this, '#FFD1D1')">
-                    <div class="background-preview" style="background-color: #FFD1D1;"></div>
+                <!-- Gradients -->
+                <div class="background-option selected" onclick="selectBackground(this, 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)')">
+                    <div class="background-preview" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)"></div>
                 </div>
-                <div class="background-option" onclick="selectBackground(this, '#EDDBC7')">
-                    <div class="background-preview" style="background: linear-gradient(direction,#FFCDB2,#FFB4A2)"></div>
+                <div class="background-option" onclick="selectBackground(this, 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)')">
+                    <div class="background-preview" style="background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)"></div>
                 </div>
-                <div class="background-option" onclick="selectBackground(this, linear-gradient(direction,#FFCDB2,#FFB4A2')">
-                    <div class="background-preview" style="background: #B7C4CF"></div>
+                <div class="background-option" onclick="selectBackground(this, 'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)')">
+                    <div class="background-preview" style="background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)"></div>
                 </div>
-                <div class="background-option" onclick="selectBackground(this, '#DC8686')">
-                    <div class="background-preview" style="background: #DC8686"></div>
+                <div class="background-option" onclick="selectBackground(this, 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)')">
+                    <div class="background-preview" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)"></div>
                 </div>
-                <div class="background-option" onclick="selectBackground(this, '#F0DBAF')">
-                    <div class="background-preview" style="background: #F0DBAF"></div>
+                <div class="background-option" onclick="selectBackground(this, 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)')">
+                    <div class="background-preview" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)"></div>
                 </div>
-                <div class="background-option" onclick="selectBackground(this, '#7ED7C1')">
-                    <div class="background-preview" style="background: #7ED7C1"></div>
+                <div class="background-option" onclick="selectBackground(this, 'linear-gradient(135deg, #a6c1ee 0%, #fbc2eb 100%)')">
+                    <div class="background-preview" style="background: linear-gradient(135deg, #a6c1ee 0%, #fbc2eb 100%)"></div>
                 </div>
-                <div class="background-option" onclick="selectBackground(this, 'url(1.png)')">
-                    <div class="background-preview" style="background-image: url('1.png'); background-size: cover">
-                    </div>
+                <div class="background-option" onclick="selectBackground(this, 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)')">
+                    <div class="background-preview" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"></div>
                 </div>
-                <div class="background-option" onclick="selectBackground(this, 'url(2.png)')">
-                    <div class="background-preview" style="background-image: url('2.png'); background-size: cover">
-                    </div>
+                <div class="background-option" onclick="selectBackground(this, 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)')">
+                    <div class="background-preview" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"></div>
                 </div>
             </div>
         </div>
@@ -198,23 +936,45 @@
 
         <div id="frame-tab" class="tab-content">
             <div class="frame-options">
-                <div class="frame-option" onclick="applyFrame('none')">
-                    <div class="frame-preview" style="border: none;">None</div>
+                <div class="frame-option selected" onclick="applyFrame('none')">
+                    <div class="frame-preview" style="border: none; background: #f5f5f5;">No Frame</div>
                 </div>
                 <div class="frame-option" onclick="applyFrame('polaroid')">
-                    <div class="frame-preview polaroid-frame">Polaroid</div>
+                    <div class="frame-preview polaroid-frame" style="background: white; border-bottom: 30px solid white;">
+                        <div style="height: 40px; background: white;"></div>
+                        <div style="height: 20px; background: #f5f5f5;"></div>
+                    </div>
                 </div>
                 <div class="frame-option" onclick="applyFrame('vintage')">
-                    <div class="frame-preview vintage-frame">Vintage</div>
+                    <div class="frame-preview vintage-frame" style="background: #f0e8d0; border: 5px solid #d4c9a8;">
+                        <div style="height: 60px; background: #f0e8d0;"></div>
+                    </div>
                 </div>
                 <div class="frame-option" onclick="applyFrame('instax')">
-                    <div class="frame-preview instax-frame">Instax</div>
+                    <div class="frame-preview instax-frame" style="background: #f8f8f8; border-bottom: 15px solid #f0f0f0;">
+                        <div style="height: 45px; background: #f8f8f8;"></div>
+                    </div>
                 </div>
                 <div class="frame-option" onclick="applyFrame('wood')">
-                    <div class="frame-preview wood-frame">Wood</div>
+                    <div class="frame-preview wood-frame" style="background: linear-gradient(to right, #8B4513, #A0522D); padding: 5px;">
+                        <div style="height: 50px; background: white;"></div>
+                    </div>
                 </div>
                 <div class="frame-option" onclick="applyFrame('gold')">
-                    <div class="frame-preview gold-frame">Gold</div>
+                    <div class="frame-preview gold-frame" style="background: linear-gradient(135deg, #FFD700, #D4AF37); padding: 3px;">
+                        <div style="height: 54px; background: white;"></div>
+                    </div>
+                </div>
+                <div class="frame-option" onclick="applyFrame('neon')">
+                    <div class="frame-preview neon-frame" style="background: black; border: 2px solid #00f2fe; box-shadow: 0 0 10px #00f2fe;">
+                        <div style="height: 56px; background: black;"></div>
+                    </div>
+                </div>
+                <div class="frame-option" onclick="applyFrame('polaroid-color')">
+                    <div class="frame-preview polaroid-color-frame" style="background: #ff9a9e; border-bottom: 30px solid #ff9a9e;">
+                        <div style="height: 40px; background: #ff9a9e;"></div>
+                        <div style="height: 20px; background: #fad0c4;"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -227,8 +987,876 @@
         <div class="error-message" id="downloadError"></div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+
+          // Global variables
+  let stream = null;
+  let selectedBackground = '#FFD1D1';
+  let countdownInterval = null;
+  let currentPhotoIndex = 0;
+  let capturedPhotos = [];
+  let selectedTemplate = 'vertical-2';
+  let photosNeeded = 2;
+  let activeSticker = null;
+  let isResizing = false;
+  let startX, startY, startWidth, startHeight;
+  let startStickerX, startStickerY;
+  let selectedFilter = 'normal';
+  let currentFacingMode = 'user';
+  let flashOn = false;
+  let gridOn = false;
+  let flashElement = null;
+  let isCountingDown = false;
+
+  // Template configurations
+  const templateConfig = {
+      'vertical-2': {
+          photosNeeded: 2,
+          containerClass: 'vertical-2',
+          photoClass: 'vertical-photo'
+      },
+      'vertical-3': {
+          photosNeeded: 3,
+          containerClass: 'vertical-3',
+          photoClass: 'vertical-photo'
+      },
+      'vertical-4': {
+          photosNeeded: 4,
+          containerClass: 'vertical-4',
+          photoClass: 'vertical-photo'
+      }
+  };
+
+  // Initialize flash element reference
+  document.addEventListener('DOMContentLoaded', () => {
+      flashElement = document.getElementById('flash');
+  });
+
+  // Simple screen navigation
+  function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(screen => {
+          screen.classList.remove('active');
+      });
+      document.getElementById(screenId).classList.add('active');
+  }
+
+  // Tab navigation
+  function openTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(tab => {
+          tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+          btn.classList.remove('active');
+      });
+
+      document.getElementById(tabId).classList.add('active');
+      event.currentTarget.classList.add('active');
+  }
+
+  // Select template
+  function selectTemplate(element, templateType) {
+      document.querySelectorAll('.template-option').forEach(option => {
+          option.classList.remove('selected');
+      });
+      element.classList.add('selected');
+      selectedTemplate = templateType;
+      photosNeeded = templateConfig[templateType].photosNeeded;
+  }
+
+  // Initialize camera
+  async function initCamera() {
+      try {
+          showScreen('screen4-camera');
+          document.getElementById('cameraError').style.display = 'none';
+          document.getElementById('cameraView').style.display = 'block';
+
+          // Reset photo capture state
+          currentPhotoIndex = 0;
+          capturedPhotos = [];
+
+          // Access the camera
+          stream = await navigator.mediaDevices.getUserMedia({
+              video: {
+                  facingMode: currentFacingMode,
+                  width: { ideal: 1280 },
+                  height: { ideal: 720 }
+              },
+              audio: false
+          });
+
+          const cameraView = document.getElementById('cameraView');
+          cameraView.srcObject = stream;
+
+          // Start countdown for first photo
+         
+      } catch (err) {
+          console.error("Error accessing camera:", err);
+          document.getElementById('cameraError').textContent =
+              "Could not access the camera. Please make sure you've granted camera permissions and that your camera is working properly.";
+          document.getElementById('cameraError').style.display = 'block';
+          document.getElementById('captureBtn').disabled = true;
+      }
+  }
+
+  
+
+  // Capture photo from camera
+  function capturePhoto() {
+if (isCountingDown) return; // Prevent multiple countdowns
+
+isCountingDown = true;
+const captureBtn = document.getElementById('captureBtn');
+captureBtn.disabled = true;
+
+let seconds = 3;
+const countdownElement = document.getElementById('countdown');
+countdownElement.style.display = 'block';
+countdownElement.textContent = `Capturing in ${seconds}...`;
+
+const countdownInterval = setInterval(() => {
+  seconds--;
+  countdownElement.textContent = `Capturing in ${seconds}...`;
+  
+  if (seconds <= 0) {
+      clearInterval(countdownInterval);
+      countdownElement.style.display = 'none';
+      isCountingDown = false;
+      captureBtn.disabled = false;
       
+      // Actually capture the photo
+      takePhoto();
+  }
+}, 1000);
+}
+
+// New function to handle the actual photo capture
+function takePhoto() {
+// Trigger flash if enabled
+if (flashOn) {
+  triggerFlash();
+}
+
+const cameraView = document.getElementById('cameraView');
+const canvas = document.createElement('canvas');
+const context = canvas.getContext('2d');
+
+canvas.width = cameraView.videoWidth;
+canvas.height = cameraView.videoHeight;
+context.drawImage(cameraView, 0, 0, canvas.width, canvas.height);
+
+const photoDataUrl = canvas.toDataURL('image/png');
+
+// Update photos array
+if (currentPhotoIndex < capturedPhotos.length) {
+  capturedPhotos[currentPhotoIndex] = photoDataUrl;
+} else {
+  capturedPhotos.push(photoDataUrl);
+}
+
+updateThumbnails();
+currentPhotoIndex++;
+
+// Move to preview if all photos are taken
+if (currentPhotoIndex >= photosNeeded) {
+  if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+  }
+  createFinalStrip();
+  showScreen('screen5-preview');
+}
+}
+
+
+  // Trigger flash animation
+  function triggerFlash() {
+      if (!flashElement) return;
+
+      flashElement.classList.remove('flash-animation');
+      // Trigger reflow
+      void flashElement.offsetWidth;
+      flashElement.classList.add('flash-animation');
+
+      // Remove animation class after animation completes
+      setTimeout(() => {
+          flashElement.classList.remove('flash-animation');
+      }, 300);
+  }
+
+  function updateThumbnails() {
+      const previewSidebar = document.getElementById('previewSidebar');
+      previewSidebar.innerHTML = '';
+
+      capturedPhotos.forEach((photo, index) => {
+          const thumbnail = document.createElement('img');
+          thumbnail.src = photo;
+          thumbnail.className = 'preview-thumbnail';
+          thumbnail.title = `Photo ${index + 1}`;
+          thumbnail.onclick = () => confirmDeletePhoto(index);
+          previewSidebar.appendChild(thumbnail);
+      });
+  }
+
+  // Create the final photo strip
+  function createFinalStrip() {
+    const stripTemplate = document.getElementById('stripTemplate');
+    stripTemplate.innerHTML = '';
+
+    // Set template class
+    stripTemplate.className = 'strip-template ' + templateConfig[selectedTemplate].containerClass;
+
+    // Create photo elements
+    for (let i = 0; i < capturedPhotos.length; i++) {
+        const photoDiv = document.createElement('div');
+        photoDiv.className = 'strip-photo ' + templateConfig[selectedTemplate].photoClass;
+
+        const img = document.createElement('img');
+        img.src = capturedPhotos[i];
+        img.className = `filter-${selectedFilter}`;
+        
+        // Ensure image fills the container properly
+        img.style.objectFit = 'cover';
+        img.style.width = '100%';
+        img.style.height = '100%';
+        
+        photoDiv.appendChild(img);
+        stripTemplate.appendChild(photoDiv);
+    }
+
+    // Update the background
+    document.getElementById('capture-container').style.background = selectedBackground;
+}
+
+  // Apply filter to all photos
+  function applyFilter(filterName) {
+      selectedFilter = filterName;
+
+      // Update selected state in UI
+      document.querySelectorAll('.filter-option').forEach(option => {
+          option.classList.remove('selected');
+      });
+      event.currentTarget.classList.add('selected');
+
+      // Apply filter to all photos
+      const allPhotos = document.querySelectorAll('.strip-photo img');
+      allPhotos.forEach(img => {
+          img.className = '';
+          img.classList.add(`filter-${filterName}`);
+      });
+  }
+
+  // Background selection
+  function selectBackground(element, background) {
+      document.querySelectorAll('.background-option').forEach(option => {
+          option.classList.remove('selected');
+      });
+      element.classList.add('selected');
+      selectedBackground = background;
+      document.getElementById('capture-container').style.background = background;
+  }
+
+  // Add sticker to photo strip
+  function addSticker(stickerUrl) {
+      const stripTemplate = document.getElementById('stripTemplate');
+      const sticker = document.createElement('div');
+      sticker.className = 'sticker';
+      sticker.innerHTML = `
+          <img src="${stickerUrl}" alt="Sticker">
+          <div class="sticker-controls">
+              <div class="sticker-delete">×</div>
+          </div>
+          <div class="sticker-resize"></div>
+      `;
+
+      // Position sticker randomly within the container
+      const containerRect = stripTemplate.getBoundingClientRect();
+      const stickerSize = 80 + Math.random() * 40;
+
+      sticker.style.width = `${stickerSize}px`;
+      sticker.style.left = `${Math.random() * (containerRect.width - stickerSize)}px`;
+      sticker.style.top = `${Math.random() * (containerRect.height - stickerSize)}px`;
+
+      stripTemplate.appendChild(sticker);
+
+      // Add event listeners for the new sticker
+      setupStickerInteractions(sticker);
+  }
+
+  // Setup sticker interactions (drag and resize)
+  function setupStickerInteractions(sticker) {
+      const deleteBtn = sticker.querySelector('.sticker-delete');
+      const resizeHandle = sticker.querySelector('.sticker-resize');
+
+      // Delete sticker
+      deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          sticker.remove();
+      });
+
+      // Drag sticker
+      sticker.addEventListener('mousedown', (e) => {
+          if (e.target === resizeHandle) return;
+
+          activeSticker = sticker;
+          const rect = sticker.getBoundingClientRect();
+          startStickerX = e.clientX - rect.left;
+          startStickerY = e.clientY - rect.top;
+
+          document.addEventListener('mousemove', moveSticker);
+          document.addEventListener('mouseup', stopStickerInteraction);
+      });
+
+      // Resize sticker
+      resizeHandle.addEventListener('mousedown', (e) => {
+          e.stopPropagation();
+          isResizing = true;
+          activeSticker = sticker;
+          const rect = sticker.getBoundingClientRect();
+          startX = e.clientX;
+          startY = e.clientY;
+          startWidth = rect.width;
+          startHeight = rect.height;
+
+          document.addEventListener('mousemove', resizeSticker);
+          document.addEventListener('mouseup', stopStickerInteraction);
+      });
+  }
+
+  // Move sticker
+  function moveSticker(e) {
+      if (!activeSticker) return;
+
+      const container = document.getElementById('stripTemplate');
+      const containerRect = container.getBoundingClientRect();
+      const stickerRect = activeSticker.getBoundingClientRect();
+
+      let newLeft = e.clientX - containerRect.left - startStickerX;
+      let newTop = e.clientY - containerRect.top - startStickerY;
+
+      // Constrain to container bounds
+      newLeft = Math.max(0, Math.min(newLeft, containerRect.width - stickerRect.width));
+      newTop = Math.max(0, Math.min(newTop, containerRect.height - stickerRect.height));
+
+      activeSticker.style.left = `${newLeft}px`;
+      activeSticker.style.top = `${newTop}px`;
+  }
+
+  // Resize sticker
+  function resizeSticker(e) {
+      if (!activeSticker || !isResizing) return;
+
+      const width = startWidth + (e.clientX - startX);
+      const height = startHeight + (e.clientY - startY);
+
+      // Minimum size constraint
+      if (width > 50 && height > 50) {
+          activeSticker.style.width = `${width}px`;
+      }
+  }
+
+  // Stop sticker interaction
+  function stopStickerInteraction() {
+      activeSticker = null;
+      isResizing = false;
+      document.removeEventListener('mousemove', moveSticker);
+      document.removeEventListener('mousemove', resizeSticker);
+      document.removeEventListener('mouseup', stopStickerInteraction);
+  }
+
+  // Download photo
+  async function downloadWithHtml2Canvas() {
+      const element = document.getElementById("capture-container");
+
+      // Hide elements that shouldn't appear in download
+      const elementsToHide = document.querySelectorAll('.sticker-controls, .sticker-resize');
+      const originalDisplay = [];
+      elementsToHide.forEach(el => {
+          originalDisplay.push(el.style.display);
+          el.style.display = 'none';
+      });
+
+      // Process images with filters
+      const photoImages = document.querySelectorAll('.strip-photo img');
+      const processedData = [];
+
+      for (const img of photoImages) {
+          const filterClass = img.className.replace('filter-', '');
+          if (filterClass && filterClass !== 'normal') {
+              const canvas = await applyFilterToCanvas(img, filterClass);
+              processedData.push({
+                  imgElement: img,
+                  originalSrc: img.src,
+                  tempSrc: canvas.toDataURL()
+              });
+              img.src = canvas.toDataURL();
+              img.className = ''; // Remove filter class temporarily
+          }
+      }
+
+      // Wait for images to load
+      await new Promise(resolve => {
+          let loadedCount = 0;
+          const totalImages = photoImages.length;
+          if (totalImages === 0) return resolve();
+
+          photoImages.forEach(img => {
+              img.onload = () => {
+                  loadedCount++;
+                  if (loadedCount === totalImages) resolve();
+              };
+              // Trigger reload if already cached
+              if (img.complete) img.src = img.src;
+          });
+      });
+
+      try {
+          const canvas = await html2canvas(element, {
+              scale: 2,
+              logging: false,
+              useCORS: true,
+              allowTaint: true,
+              backgroundColor: '#FFFFFF'
+          });
+
+          // Restore original images
+          processedData.forEach(data => {
+              data.imgElement.src = data.originalSrc;
+              data.imgElement.className = `filter-${data.imgElement.className}`;
+          });
+
+          // Restore hidden elements
+          elementsToHide.forEach((el, i) => {
+              el.style.display = originalDisplay[i];
+          });
+
+          // Download the result
+          const link = document.createElement('a');
+          link.download = 'rey-studio-photo.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+
+      } catch (err) {
+          console.error("Error generating image:", err);
+          alert("Failed to generate image. Please try again.");
+
+          // Restore everything if error occurs
+          processedData.forEach(data => {
+              data.imgElement.src = data.originalSrc;
+              data.imgElement.className = `filter-${data.imgElement.className}`;
+          });
+          elementsToHide.forEach((el, i) => {
+              el.style.display = originalDisplay[i];
+          });
+      }
+  }
+
+  async function applyFilterToCanvas(imgElement, filterClass) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = imgElement.naturalWidth || imgElement.width;
+      canvas.height = imgElement.naturalHeight || imgElement.height;
+
+      // Draw original image
+      ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
+
+      // Get pixel data
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+
+      // Helper function to preserve brightness
+      function adjustWithBrightness(r, g, b, adjustment) {
+          const brightness = (r + g + b) / 3;
+          return [
+              brightness + (r - brightness) * adjustment,
+              brightness + (g - brightness) * adjustment,
+              brightness + (b - brightness) * adjustment
+          ];
+      }
+
+      // Apply filter based on class
+      switch (filterClass) {
+          case 'clarendon':
+              for (let i = 0; i < data.length; i += 4) {
+                  const [r, g, b] = adjustWithBrightness(
+                      data[i], data[i + 1], data[i + 2], 1.4
+                  );
+                  data[i] = r;
+                  data[i + 1] = g;
+                  data[i + 2] = b;
+              }
+              break;
+
+          case 'gingham':
+              for (let i = 0; i < data.length; i += 4) {
+                  const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                  data[i] = brightness + (data[i] - brightness) * 0.9;
+                  data[i + 1] = brightness + (data[i + 1] - brightness) * 0.9;
+                  data[i + 2] = brightness + (data[i + 2] - brightness) * 0.9;
+
+                  const r = data[i], g = data[i + 1], b = data[i + 2];
+                  data[i] = r * 0.9 + g * 0.9 + b * 0.8;
+                  data[i + 1] = r * 0.9 + g * 1.1 + b * 0.8;
+                  data[i + 2] = r * 0.8 + g * 0.8 + b * 1.1;
+              }
+              break;
+
+          case 'moon':
+              for (let i = 0; i < data.length; i += 4) {
+                  const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                  const val = avg < 128 ? avg * 0.7 : 128 + (avg - 128) * 1.5;
+                  data[i] = data[i + 1] = data[i + 2] = val;
+              }
+              break;
+
+          case 'lark':
+              for (let i = 0; i < data.length; i += 4) {
+                  const [r, g, b] = adjustWithBrightness(
+                      data[i], data[i + 1], data[i + 2], 1.2
+                  );
+                  data[i] = Math.min(255, r * 1.1);
+                  data[i + 1] = Math.min(255, g * 1.1);
+                  data[i + 2] = Math.min(255, b * 1.1);
+              }
+              break;
+
+          case 'reyes':
+              for (let i = 0; i < data.length; i += 4) {
+                  const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                  data[i] = brightness + (data[i] - brightness) * 0.85;
+                  data[i + 1] = brightness + (data[i + 1] - brightness) * 0.85;
+                  data[i + 2] = brightness + (data[i + 2] - brightness) * 0.85;
+
+                  const r = data[i], g = data[i + 1], b = data[i + 2];
+                  data[i] = r * 0.9 + g * 0.8 + b * 0.7;
+                  data[i + 1] = r * 0.8 + g * 0.9 + b * 0.7;
+                  data[i + 2] = r * 0.7 + g * 0.7 + b * 0.9;
+              }
+              break;
+
+          case 'juno':
+              for (let i = 0; i < data.length; i += 4) {
+                  const [r, g, b] = adjustWithBrightness(
+                      data[i], data[i + 1], data[i + 2], 1.3
+                  );
+                  data[i] = Math.min(255, r * 1.1);
+                  data[i + 1] = Math.min(255, g * 1.1);
+                  data[i + 2] = Math.max(0, b * 0.9);
+              }
+              break;
+
+          case 'slumber':
+              for (let i = 0; i < data.length; i += 4) {
+                  const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                  data[i] = brightness * 0.9;
+                  data[i + 1] = brightness * 0.9;
+                  data[i + 2] = brightness * 1.1;
+              }
+              break;
+
+          case 'crema':
+              for (let i = 0; i < data.length; i += 4) {
+                  const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                  data[i] = brightness * 1.1;
+                  data[i + 1] = brightness * 1.1;
+                  data[i + 2] = brightness * 0.9;
+
+                  const r = data[i], g = data[i + 1], b = data[i + 2];
+                  data[i] = r * 0.95 + g * 0.9 + b * 0.85;
+                  data[i + 1] = r * 0.9 + g * 0.95 + b * 0.85;
+                  data[i + 2] = r * 0.85 + g * 0.85 + b * 0.95;
+              }
+              break;
+
+          case 'ludwig':
+              for (let i = 0; i < data.length; i += 4) {
+                  const [r, g, b] = adjustWithBrightness(
+                      data[i], data[i + 1], data[i + 2], 1.1
+                  );
+                  data[i] = r * 0.95;
+                  data[i + 1] = g * 0.95;
+                  data[i + 2] = b * 0.9;
+              }
+              break;
+
+          case 'aden':
+              for (let i = 0; i < data.length; i += 4) {
+                  const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                  data[i] = brightness * 0.9;
+                  data[i + 1] = brightness * 1.1;
+                  data[i + 2] = brightness * 1.2;
+              }
+              break;
+
+          case 'perpetua':
+              for (let i = 0; i < data.length; i += 4) {
+                  const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                  data[i] = brightness + (data[i] - brightness) * 0.9;
+                  data[i + 1] = brightness + (data[i + 1] - brightness) * 0.9;
+                  data[i + 2] = brightness + (data[i + 2] - brightness) * 0.9;
+
+                  const r = data[i], g = data[i + 1], b = data[i + 2];
+                  data[i] = r * 0.95 + g * 0.9 + b * 0.85;
+                  data[i + 1] = r * 0.9 + g * 0.95 + b * 0.85;
+                  data[i + 2] = r * 0.85 + g * 0.85 + b * 0.95;
+              }
+              break;
+
+          default: // normal
+              // No changes
+              break;
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+      return canvas;
+  }
+
+  function applyFrame(frameType) {
+    const stripPhotos = document.querySelectorAll('.strip-photo');
+
+    stripPhotos.forEach(photo => {
+        // Reset all frames
+        photo.style.border = 'none';
+        photo.style.borderBottom = 'none';
+        photo.style.boxShadow = 'none';
+        photo.style.borderRadius = '4px';
+        photo.style.padding = '0';
+        photo.style.background = 'transparent';
+
+        switch (frameType) {
+            case 'none':
+                // Default (no frame)
+                break;
+
+            case 'polaroid':
+                photo.style.border = '10px solid white';
+                photo.style.borderBottom = '30px solid white';
+                photo.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+                photo.style.background = 'white';
+                break;
+
+            case 'vintage':
+                photo.style.border = '5px solid #d4c9a8';
+                photo.style.boxShadow = 'inset 0 0 15px rgba(0,0,0,0.1), 0 0 8px rgba(0,0,0,0.2)';
+                photo.style.background = '#f0e8d0';
+                break;
+
+            case 'instax':
+                photo.style.border = '8px solid #f0f0f0';
+                photo.style.borderBottom = '15px solid #f0f0f0';
+                photo.style.background = '#f8f8f8';
+                photo.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                break;
+
+            case 'wood':
+                photo.style.border = '10px solid transparent';
+                photo.style.padding = '5px';
+                photo.style.background = 'linear-gradient(to right, #8B4513, #A0522D) border-box';
+                photo.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+                break;
+
+            case 'gold':
+                photo.style.border = '8px solid transparent';
+                photo.style.padding = '3px';
+                photo.style.background = 'linear-gradient(135deg, #FFD700, #D4AF37) border-box';
+                photo.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
+                break;
+
+            case 'neon':
+                photo.style.border = '2px solid #00f2fe';
+                photo.style.boxShadow = '0 0 10px #00f2fe, inset 0 0 5px #00f2fe';
+                photo.style.background = 'black';
+                break;
+
+            case 'polaroid-color':
+                photo.style.border = '10px solid #ff9a9e';
+                photo.style.borderBottom = '30px solid #ff9a9e';
+                photo.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+                photo.style.background = '#ff9a9e';
+                break;
+        }
+    });
+}
+  async function switchCamera() {
+      try {
+          if (stream) {
+              stream.getTracks().forEach(track => track.stop());
+          }
+
+          currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+          const constraints = {
+              video: {
+                  facingMode: currentFacingMode,
+                  width: { ideal: 1280 },
+                  height: { ideal: 720 }
+              },
+              audio: false
+          };
+
+          stream = await navigator.mediaDevices.getUserMedia(constraints);
+          document.getElementById('cameraView').srcObject = stream;
+      } catch (err) {
+          console.error("Error switching camera:", err);
+          document.getElementById('cameraError').textContent =
+              "Error switching camera. Your device might not have multiple cameras.";
+          document.getElementById('cameraError').style.display = 'block';
+      }
+  }
+
+  function toggleFlash() {
+      flashOn = !flashOn;
+      document.getElementById('flashBtn').textContent =
+          `Flash: ${flashOn ? 'On' : 'Off'}`;
+  }
+
+  function toggleGrid() {
+      gridOn = !gridOn;
+      document.getElementById('gridBtn').textContent =
+          `Grid: ${gridOn ? 'On' : 'Off'}`;
+      document.getElementById('cameraGrid').style.display = gridOn ? 'block' : 'none';
+  }
+
+  function returnToCamera() {
+      // Stop camera if running (if any)
+      if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+      }
+
+      // Reset photo index to number of photos already taken
+      currentPhotoIndex = capturedPhotos.length;
+
+      // Show camera screen
+      showScreen('screen4-camera');
+
+      // Restart camera with existing photos
+      initCameraWithExistingPhotos();
+  }
+
+  // Function to initialize camera with existing photos
+  async function initCameraWithExistingPhotos() {
+      try {
+          // Access camera
+          stream = await navigator.mediaDevices.getUserMedia({
+              video: {
+                  facingMode: currentFacingMode,
+                  width: { ideal: 1280 },
+                  height: { ideal: 720 }
+              },
+              audio: false
+          });
+
+          const cameraView = document.getElementById('cameraView');
+          cameraView.srcObject = stream;
+
+          // Show thumbnails of photos already taken
+          const previewSidebar = document.getElementById('previewSidebar');
+          previewSidebar.innerHTML = ''; // Clear first
+
+          capturedPhotos.forEach((photo, index) => {
+              const thumbnail = document.createElement('img');
+              thumbnail.src = photo;
+              thumbnail.className = 'preview-thumbnail';
+              thumbnail.title = `Photo ${index + 1}`;
+              thumbnail.onclick = () => confirmDeletePhoto(index); // Add option to delete specific photo
+              previewSidebar.appendChild(thumbnail);
+          });
+
+          // Start countdown for next photo
+          startCountdown();
+
+      } catch (err) {
+          console.error("Error accessing camera:", err);
+          document.getElementById('cameraError').textContent =
+              "Could not access the camera. Please try again.";
+          document.getElementById('cameraError').style.display = 'block';
+          showScreen('screen3-template');
+      }
+  }
+
+  // Function to delete specific photo
+  function confirmDeletePhoto(index) {
+      if (confirm("Delete this photo?")) {
+          capturedPhotos.splice(index, 1); // Remove photo from array
+          currentPhotoIndex = capturedPhotos.length; // Reset index
+
+          // Update thumbnails in sidebar
+          const previewSidebar = document.getElementById('previewSidebar');
+          previewSidebar.innerHTML = '';
+
+          capturedPhotos.forEach((photo, i) => {
+              const thumbnail = document.createElement('img');
+              thumbnail.src = photo;
+              thumbnail.className = 'preview-thumbnail';
+              thumbnail.title = `Photo ${i + 1}`;
+              thumbnail.onclick = () => confirmDeletePhoto(i);
+              previewSidebar.appendChild(thumbnail);
+          });
+
+          // If no photos left, start from scratch
+          if (capturedPhotos.length === 0) {
+              currentPhotoIndex = 0;
+          }
+      }
+  }
+
+  function retakeLastPhoto() {
+      if (capturedPhotos.length === 0) return;
+
+      // Remove last photo
+      capturedPhotos.pop();
+      currentPhotoIndex--;
+
+      // Remove last thumbnail from sidebar
+      const thumbnails = document.querySelectorAll('.preview-thumbnail');
+      if (thumbnails.length > 0) {
+          thumbnails[thumbnails.length - 1].remove();
+      }
+
+      // Stop countdown if running
+      if (countdownInterval) {
+          clearInterval(countdownInterval);
+      }
+
+      // Start countdown for photo to retake
+      startCountdown();
+  }
+
+  function retakeAllPhotos() {
+      if (!confirm("Are you sure you want to retake all photos? All current photos will be deleted.")) {
+          return;
+      }
+
+      // Stop camera if running
+      if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+      }
+
+      // Stop countdown if running
+      if (countdownInterval) {
+          clearInterval(countdownInterval);
+      }
+
+      // Reset all photo states
+      currentPhotoIndex = 0;
+      capturedPhotos = [];
+
+      // Clear preview sidebar
+      document.getElementById('previewSidebar').innerHTML = '';
+
+      // Hide countdown
+      document.getElementById('countdown').style.display = 'none';
+
+      // Restart camera
+      initCamera();
+  }
+
+  // Clean up when leaving the page
+  window.addEventListener('beforeunload', () => {
+      if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+      }
+      if (countdownInterval) {
+          clearInterval(countdownInterval);
+      }
+  });
     </script>
 </body>
 
