@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rey Studio</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
+    <link href="https://fonts.cdnfonts.com/css/halimun" rel="stylesheet">
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Screen 1: Welcome -->
+    <div class="screen active" id="screen1" style="background-image: url('background/bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;">
+        <h1 style="font-family: 'Halimun', sans-serif; color: #ddd; font-size: 3rem;">Rey Studio</h1>
+        <p>Create beautiful photo strips with your favorite moments</p>
+        <button onclick="showScreen('screen2')">Get Started</button>
+    </div>
+
+    <!-- Screen 2: Instructions -->
+    <div class="screen" id="screen2" style="background-image: url('background/bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;">
+        <h1 style="font-family: 'Blinker'; color: #ddd;">How It Works</h1>
+        <p>We'll guide you through creating a personalized photo strip. Choose a template, take photos, and customize
+            your creation.</p>
+        <button onclick="showScreen('screen3-template')">Continue</button>
+    </div>
+
+    <!-- Screen 3: Template Selection -->
+    <div class="screen" id="screen3-template" style="background-image: url('background/bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;">
+        <h1  style="font-family: 'Blinker'; color: #ddd;">Choose Template</h1>
+        <p>Select a layout for your photo strip</p>
+
+        <div class="template-options">
+            <!-- <div class="template-option vertical-2 selected" onclick="selectTemplate(this, 'vertical-2')">
+                <h3>Vertical 2</h3>
+                <div class="template-preview">
+                    <div class="template-preview-cell"></div>
+                    <div class="template-preview-cell"></div>
+                </div>
+            </div> -->
+            <div class="template-option vertical-3" onclick="selectTemplate(this, 'vertical-3')">
+                <h3>Vertical 3</h3>
+                <div class="template-preview">
+                    <div class="template-preview-cell"></div>
+                    <div class="template-preview-cell"></div>
+                    <div class="template-preview-cell"></div>
+                </div>
+            </div>
+            <!-- <div class="template-option vertical-4" onclick="selectTemplate(this, 'vertical-4')">
+                <h3>Vertical 4</h3>
+                <div class="template-preview">
+                    <div class="template-preview-cell"></div>
+                    <div class="template-preview-cell"></div>
+                    <div class="template-preview-cell"></div>
+                    <div class="template-preview-cell"></div>
+                </div>
+            </div> -->
+        </div>
+
+        <button onclick="initCamera()">Continue</button>
+    </div>
+
+    <!-- Screen 4: Camera View -->
+    <div class="screen" id="screen4-camera" style="background-image: url('background/bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;">
+        <h1  style="font-family: 'Blinker'; color: #ddd;">Take Photos</h1>
+        <div class="error-message" id="cameraError"></div>
+        <div class="capture-preview-container">
+            <div class="camera-wrapper">
+                <div class="camera-container">
+                    <video id="cameraView" autoplay playsinline></video>
+                    <div class="flash" id="flash"></div>
+                    <div class="camera-grid" id="cameraGrid"></div>
+                </div>
+                <div id="countdown"></div>
+                <button onclick="capturePhoto()" id="captureBtn">Capture</button>
+            </div>
+
+            <div class="preview-sidebar" id="previewSidebar">
+                <!-- Thumbnails will be added here -->
+            </div>
+        </div>
+        <div class="camera-controls">
+            <button onclick="switchCamera()">Switch Camera</button>
+            <button onclick="toggleFlash()" id="flashBtn">Flash: Off</button>
+            <button onclick="toggleGrid()" id="gridBtn">Grid: Off</button>
+            <button onclick="retakeLastPhoto()" class="secondary">Retake Last</button>
+            <button onclick="retakeAllPhotos()" class="secondary">Retake All</button>
+        </div>
+
+    </div>
+
+    <!-- Screen 5: Customization -->
+    <div class="screen" id="screen5-preview" style="background-image: url('background/bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;">
+        <h1  style="font-family: 'Blinker'; color: #ddd;">Customize</h1>
+        <p>Add filters, backgrounds, and stickers to your photo strip</p>
+
+        <div id="capture-container" style="background-size: cover;">
+            <div class="strip-template" id="stripTemplate">
+                <!-- Photos will be inserted here -->
+            </div>
+            <div class="photo-footer">
+                <div class="footer-title"><img id="footerLogo" src="logo/logo.png" alt="" style="height: 50%; width: 50%;">
+                </div>
+                <div class="footer-subtitle"></div>
+            </div>
+        </div>
+
+        <div class="tab-nav" style="display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1rem;">
+            <!-- <button class="tab-btn active" onclick="openTab('filter-tab')">Filters</button> -->
+            <button class="tab-btn active" onclick="openTab('background-tab')">Background</button>
+            <button class="tab-btn" onclick="openTab('sticker-tab')">Stickers</button>
+            <button class="tab-btn" onclick="openTab('frame-tab')">Frames</button>
+            <button class="tab-btn" onclick="openTab('logo-tab')">Logo</button>
+        </div>
+
+        <!-- <div id="filter-tab" class="tab-content active">
+            <div class="logo-options">
+                <div class="filter-option selected" onclick="applyFilter('normal')">
+                    <div class="filter-preview filter-normal"
+                        style="background-image: url('https://picsum.photos/200/200')"></div>
+                    <div class="filter-name">Normal</div>
+                </div>
+                <div class="filter-option" onclick="applyFilter('clarendon')">
+                    <div class="filter-preview filter-clarendon"
+                        style="background-image: url('https://picsum.photos/200/200')"></div>
+                    <div class="filter-name">Clarendon</div>
+                </div>
+                <div class="filter-option" onclick="applyFilter('gingham')">
+                    <div class="filter-preview filter-gingham"
+                        style="background-image: url('https://picsum.photos/200/200')"></div>
+                    <div class="filter-name">Gingham</div>
+                </div>
+                <div class="filter-option" onclick="applyFilter('moon')">
+                    <div class="filter-preview filter-moon"
+                        style="background-image: url('https://picsum.photos/200/200')"></div>
+                    <div class="filter-name">Moon</div>
+                </div>
+                <div class="filter-option" onclick="applyFilter('lark')">
+                    <div class="filter-preview filter-lark"
+                        style="background-image: url('https://picsum.photos/200/200')"></div>
+                    <div class="filter-name">Lark</div>
+                </div>
+                <div class="filter-option" onclick="applyFilter('reyes')">
+                    <div class="filter-preview filter-reyes"
+                        style="background-image: url('https://picsum.photos/200/200')"></div>
+                    <div class="filter-name">Reyes</div>
+                </div>
+            </div>
+        </div> -->
+
+        <div id="background-tab" class="tab-content" active>
+            <div class="background-options">
+                <!-- Solid Colors -->
+                <div class="background-option" onclick="selectBackground(this, '#FFD1D1')">
+                    <div class="background-preview" style="background: #FFD1D1"></div>
+                </div>
+                <div class="background-option" onclick="selectBackground(this, '#FFE3D1')">
+                    <div class="background-preview" style="background: #FFE3D1"></div>
+                </div>
+                <div class="background-option" onclick="selectBackground(this, '#D1FFD7')">
+                    <div class="background-preview" style="background: #D1FFD7"></div>
+                </div>
+                <div class="background-option" onclick="selectBackground(this, '#D1F0FF')">
+                    <div class="background-preview" style="background: #D1F0FF"></div>
+                </div>
+                <div class="background-option" onclick="selectBackground(this, '#E8D1FF')">
+                    <div class="background-preview" style="background: #E8D1FF"></div>
+                </div>
+                
+                <!-- Gradients -->
+                <div class="background-option" onclick="selectBackground(this, 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)')">
+                    <div class="background-preview" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)"></div>
+                </div>
+                <div class="background-option" onclick="selectBackground(this, 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)')">
+                    <div class="background-preview" style="background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)"></div>
+                </div>
+                <div class="background-option" onclick="selectBackground(this, 'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)')">
+                    <div class="background-preview" style="background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)"></div>
+                </div>
+                <div class="background-option" onclick="selectBackground(this, 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)')">
+                    <div class="background-preview" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)"></div>
+                </div>
+                <div class="background-option" onclick="selectBackground(this, 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)')">
+                    <div class="background-preview" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)"></div>
+                </div>
+                
+                <!-- Image Backgrounds -->
+                <div class="background-option" onclick="selectBackground(this, 'url(\'background/background.png\')')">
+                    <div class="background-preview" style="background-image: url('background/background.png')"></div>
+                </div>
+                <div class="background-option" onclick="selectBackground(this, 'url(\'background/background1.png\')')">
+                    <div class="background-preview" style="background-image: url('background/background1.png')"></div>
+                </div>
+                
+                <!-- Upload Option -->
+                <div class="background-option upload-option" onclick="document.getElementById('bgUpload').click()">
+                    <div class="background-preview">
+                        <span>Upload Custom</span>
+                    </div>
+                    <input type="file" id="bgUpload" accept="image/*" style="display: none;" onchange="uploadBackground(this)">
+                </div>
+            </div>
+        </div>
+
+        <div id="sticker-tab" class="tab-content">
+            <div class="logo-options">
+                <div class="sticker-option" onclick="addSticker('sticker/Sticker.png')">
+                    <div class="sticker-preview" style="background-image: url('sticker/Sticker.png')"></div>
+                </div>
+                <div class="sticker-option" onclick="addSticker('sticker/bear.png')">
+                    <div class="sticker-preview" style="background-image: url('sticker/bear.png')"></div>
+                </div>
+                <div class="sticker-option" onclick="addSticker('sticker/love.png')">
+                    <div class="sticker-preview" style="background-image: url('sticker/love.png')"></div>
+                </div>
+                <div class="sticker-option" onclick="addSticker('sticker/cat.png')">
+                    <div class="sticker-preview" style="background-image: url('sticker/cat.png')"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="frame-tab" class="tab-content">
+            <div class="logo-options">
+                <div class="frame-option selected" onclick="applyFrame('none')">
+                    <div class="frame-preview" style="border: none; background: #f5f5f5;">No Frame</div>
+                </div>
+                <div class="frame-option" onclick="applyFrame('polaroid')">
+                    <div class="frame-preview polaroid-frame"
+                        style="background: white; border-bottom: 30px solid white;">
+                        <div style="height: 40px; background: white;"></div>
+                        <div style="height: 20px; background: #f5f5f5;"></div>
+                    </div>
+                </div>
+                <div class="frame-option" onclick="applyFrame('vintage')">
+                    <div class="frame-preview vintage-frame" style="background: #f0e8d0; border: 5px solid #d4c9a8;">
+                        <div style="height: 60px; background: #f0e8d0;"></div>
+                    </div>
+                </div>
+                <div class="frame-option" onclick="applyFrame('instax')">
+                    <div class="frame-preview instax-frame"
+                        style="background: #f8f8f8; border-bottom: 15px solid #f0f0f0;">
+                        <div style="height: 45px; background: #f8f8f8;"></div>
+                    </div>
+                </div>
+                <div class="frame-option" onclick="applyFrame('wood')">
+                    <div class="frame-preview wood-frame"
+                        style="background: linear-gradient(to right, #8B4513, #A0522D); padding: 5px;">
+                        <div style="height: 50px; background: white;"></div>
+                    </div>
+                </div>
+                <div class="frame-option" onclick="applyFrame('gold')">
+                    <div class="frame-preview gold-frame"
+                        style="background: linear-gradient(135deg, #FFD700, #D4AF37); padding: 3px;">
+                        <div style="height: 54px; background: white;"></div>
+                    </div>
+                </div>
+                <div class="frame-option" onclick="applyFrame('neon')">
+                    <div class="frame-preview neon-frame"
+                        style="background: black; border: 2px solid #00f2fe; box-shadow: 0 0 10px #00f2fe;">
+                        <div style="height: 56px; background: black;"></div>
+                    </div>
+                </div>
+                <div class="frame-option" onclick="applyFrame('polaroid-color')">
+                    <div class="frame-preview polaroid-color-frame"
+                        style="background: #ff9a9e; border-bottom: 30px solid #ff9a9e;">
+                        <div style="height: 40px; background: #ff9a9e;"></div>
+                        <div style="height: 20px; background: #fad0c4;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="logo-tab" class="tab-content">
+            <div class="logo-options">
+                <div class="logo-option selected" onclick="changeLogo('logo/spring.png')">
+                    <div class="logo-preview" style="background-image: url('logo/spring.png')"></div>
+                    <div class="logo-name">Spring Vibe</div>
+                </div>
+                <div class="logo-option" onclick="changeLogo('logo/escape.png')">
+                    <div class="logo-preview" style="background-image: url('logo/escape.png')"></div>
+                    <div class="logo-name">Escape Room</div>
+                </div>
+                <div class="logo-option" onclick="changeLogo('logo/justdoit.png')">
+                    <div class="logo-preview" style="background-image: url('logo/justdoit.png')"></div>
+                    <div class="logo-name">Just Do It</div>
+                </div>
+                <div class="logo-option" onclick="document.getElementById('logoUpload').click()">
+                    <div class="logo-preview"
+                        style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                        <span style="font-size: 0.8rem;">Upload Your Own</span>
+                    </div>
+                    <div class="logo-name">Custom Logo</div>
+                    <input type="file" id="logoUpload" accept="image/*" style="display: none;"
+                        onchange="uploadLogo(this)">
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="secondary" onclick="returnToCamera()">Retake</button>
+            <button onclick="downloadWithHtml2Canvas()" id="downloadBtn">Download</button>
+            <div class="spinner" id="downloadSpinner"></div>
+        </div>
+        <div class="error-message" id="downloadError"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
