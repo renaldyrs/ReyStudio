@@ -150,8 +150,8 @@ function takePhoto() {
     const context = canvas.getContext('2d');
 
     // Set canvas size to 250x250
-    canvas.width = 250;
-    canvas.height = 250;
+    canvas.width = 300;
+    canvas.height = 300;
 
     // Calculate aspect ratio and crop
     const sourceAspect = cameraView.videoWidth / cameraView.videoHeight;
@@ -176,7 +176,7 @@ function takePhoto() {
     context.drawImage(
         cameraView,
         sourceX, sourceY, sourceWidth, sourceHeight, // source rectangle
-        0, 0, 250, 250 // destination rectangle
+        0, 0, 300, 300 // destination rectangle
     );
 
     const photoDataUrl = canvas.toDataURL('image/png');
