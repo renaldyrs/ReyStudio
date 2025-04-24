@@ -239,7 +239,7 @@ button.secondary:hover {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    opacity: 0.8;
+    opacity: 0;
 }
 
 /* Vertical strip variations */
