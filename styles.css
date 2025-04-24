@@ -1,5 +1,4 @@
 * {
-
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -7,8 +6,6 @@
 }
 
 body {
-
-
     color: #333;
     min-height: 100vh;
     overflow-x: hidden;
@@ -192,17 +189,15 @@ button.secondary:hover {
 #capture-container {
     background-color: transparent;
     border-radius: 8px;
-    margin: 1rem 0;
-    width: 250px;
-    /* Set width to match photo size */
-    padding: 1.5rem;
+    width: 190px;
+    padding: 1rem;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     border: 1px solid #eee;
-
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     transition: background 0.3s ease;
+    position: relative;
 }
 
 /* Update the strip template container */
@@ -211,21 +206,18 @@ button.secondary:hover {
     flex-direction: column;
     gap: 1rem;
     background: transparent;
-    
     width: 100%;
     max-width: 300px;
-    /* Lebar maksimum untuk strip vertikal */
-  
+    position: relative;
 }
 
 .strip-photo {
-    width: 200px;
-    height: 200px;
+    width: 160px;
     background: white;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
     overflow: hidden;
     border-radius: 4px;
-    
+    position: relative;
 }
 
 .strip-photo img {
@@ -235,24 +227,40 @@ button.secondary:hover {
     display: block;
 }
 
+/* New overlay template styles */
+.overlay-template {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5; /* Above photos but below stickers */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.8;
+}
+
 /* Vertical strip variations */
 .vertical-2 .strip-photo {
-    height: 250px;
+    height: 160px;
 }
 
 .vertical-3 .strip-photo {
-    height: 170px;
+    height: 160px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
 }
 
 .vertical-4 .strip-photo {
-    height: 250px;
+    height: 160px;
 }
 
 /* Filter, Background, Sticker Options */
 .filter-options,
 .background-options,
-.sticker-options {
+.sticker-options,
+.overlay-options {
     display: flex;
     overflow-x: auto;
     gap: 0.8rem;
@@ -264,7 +272,8 @@ button.secondary:hover {
 
 .filter-option,
 .background-option,
-.sticker-option {
+.sticker-option,
+.overlay-option {
     min-width: 80px;
     height: 80px;
     border-radius: 8px;
@@ -278,19 +287,22 @@ button.secondary:hover {
 
 .filter-option:hover,
 .background-option:hover,
-.sticker-option:hover {
+.sticker-option:hover,
+.overlay-option:hover {
     transform: scale(1.03);
 }
 
 .filter-option.selected,
 .background-option.selected,
-.sticker-option.selected {
+.sticker-option.selected,
+.overlay-option.selected {
     border: 1px solid #333;
 }
 
 .filter-preview,
 .background-preview,
-.sticker-preview {
+.sticker-preview,
+.overlay-preview {
     width: 100%;
     height: 100%;
     background-size: cover;
@@ -398,7 +410,7 @@ button.secondary:hover {
 /* Sticker elements */
 .sticker {
     position: absolute;
-    z-index: 100;
+    z-index: 10; /* Above everything */
     cursor: move;
     user-select: none;
     transform-origin: center;
@@ -415,7 +427,7 @@ button.secondary:hover {
     top: -12px;
     right: -12px;
     display: none;
-    z-index: 101;
+    z-index: 11;
 }
 
 .sticker:hover .sticker-controls {
@@ -470,7 +482,8 @@ button.secondary:hover {
 
     .filter-option,
     .background-option,
-    .sticker-option {
+    .sticker-option,
+    .overlay-option {
         width: 70px;
         height: 70px;
     }
@@ -512,14 +525,14 @@ button.secondary:hover {
 
     .filter-option,
     .background-option,
-    .sticker-option {
+    .sticker-option,
+    .overlay-option {
         width: 60px;
         height: 60px;
     }
 }
 
 @media print {
-
     .sticker-controls,
     .sticker-resize {
         display: none !important;
@@ -601,7 +614,6 @@ button.secondary:hover {
     border-radius: 4px;
 }
 
-/* Frame Styles */
 /* Frame Styles */
 .polaroid-frame {
     border: 10px solid white;
@@ -783,4 +795,37 @@ button.secondary:hover {
 .background-option .background-preview span {
     padding: 0.5rem;
     color: #555;
+}
+
+/* Overlay template options */
+.overlay-options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.overlay-option {
+    width: 100px;
+    height: 100px;
+    cursor: pointer;
+    position: relative;
+}
+
+.overlay-preview {
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+.overlay-name {
+    margin-top: 0.5rem;
+    font-size: 0.7rem;
+    color: #555;
+    text-align: center;
 }

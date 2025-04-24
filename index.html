@@ -9,6 +9,8 @@
     <link href="https://fonts.cdnfonts.com/css/halimun" rel="stylesheet">
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
+
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -43,13 +45,13 @@
         <p>Select a layout for your photo strip</p>
 
         <div class="template-options">
-            <!-- <div class="template-option vertical-2 selected" onclick="selectTemplate(this, 'vertical-2')">
+            <div class="template-option vertical-2 selected" onclick="selectTemplate(this, 'vertical-2')">
                 <h3>Vertical 2</h3>
                 <div class="template-preview">
                     <div class="template-preview-cell"></div>
                     <div class="template-preview-cell"></div>
                 </div>
-            </div> -->
+            </div>
             <div class="template-option vertical-3" onclick="selectTemplate(this, 'vertical-3')">
                 <h3>Vertical 3</h3>
                 <div class="template-preview">
@@ -58,7 +60,7 @@
                     <div class="template-preview-cell"></div>
                 </div>
             </div>
-            <!-- <div class="template-option vertical-4" onclick="selectTemplate(this, 'vertical-4')">
+            <div class="template-option vertical-4" onclick="selectTemplate(this, 'vertical-4')">
                 <h3>Vertical 4</h3>
                 <div class="template-preview">
                     <div class="template-preview-cell"></div>
@@ -66,7 +68,7 @@
                     <div class="template-preview-cell"></div>
                     <div class="template-preview-cell"></div>
                 </div>
-            </div> -->
+            </div>
         </div>
 
         <button onclick="initCamera()">Continue</button>
@@ -113,6 +115,7 @@
         <p>Add filters, backgrounds, and stickers to your photo strip</p>
 
         <div id="capture-container" style="background-size: cover;">
+            <!-- Overlay template will be added here -->
             <div class="strip-template" id="stripTemplate">
                 <!-- Photos will be inserted here -->
             </div>
@@ -133,6 +136,7 @@
             <button class="tab-btn" onclick="openTab('sticker-tab')">Stickers</button>
             <button class="tab-btn" onclick="openTab('frame-tab')">Frames</button>
             <button class="tab-btn" onclick="openTab('logo-tab')">Logo</button>
+            <button class="tab-btn" onclick="openTab('overlay-tab')">Overlay</button>
         </div>
         
 
@@ -319,6 +323,37 @@
             </div>
         </div>
 
+        <!-- New Overlay Template Tab -->
+        <div id="overlay-tab" class="tab-content">
+            <div class="overlay-options">
+                <div class="overlay-option" onclick="applyOverlay('none')">
+                    <div class="overlay-preview" style="background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
+                        <span>No Overlay</span>
+                    </div>
+                    <div class="overlay-name">None</div>
+                </div>
+                <div class="overlay-option" onclick="applyOverlay('overlay/overlay1.png')">
+                    <div class="overlay-preview" style="background-image: url('overlay/overlay1.png')"></div>
+                    <div class="overlay-name">Floral Frame</div>
+                </div>
+                <div class="overlay-option" onclick="applyOverlay('overlay/overlay2.png')">
+                    <div class="overlay-preview" style="background-image: url('overlay/overlay2.png')"></div>
+                    <div class="overlay-name">Polaroid</div>
+                </div>
+                <div class="overlay-option" onclick="applyOverlay('overlay/overlay3.png')">
+                    <div class="overlay-preview" style="background-image: url('overlay/overlay3.png')"></div>
+                    <div class="overlay-name">Vintage</div>
+                </div>
+                <div class="overlay-option" onclick="document.getElementById('overlayUpload').click()">
+                    <div class="overlay-preview" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                        <span>Upload</span>
+                    </div>
+                    <div class="overlay-name">Custom</div>
+                    <input type="file" id="overlayUpload" accept="image/*" style="display: none;" onchange="uploadOverlay(this)">
+                </div>
+            </div>
+        </div>
+
         <div class="action-buttons">
             <button onclick="returnToCamera()">Retake</button>
             <button onclick="downloadWithHtml2Canvas()" id="downloadBtn">Download</button>
@@ -327,20 +362,7 @@
         <div class="error-message" id="downloadError"></div>
     </div>
 
-    <script src="script.js">
-
-function openTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-
-    document.getElementById(tabId).classList.add('active');
-    event.currentTarget.classList.add('active');
-}
-    </script>
+    <script src="script.js"></script>
 </body>
 
 </html>
