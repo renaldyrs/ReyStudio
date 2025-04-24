@@ -578,7 +578,7 @@ async function downloadWithHtml2Canvas() {
             allowTaint: true,
             backgroundColor: '#FFFFFF',
             quality: 1, // Highest quality
-            dpi: 300, // High DPI for high resolution
+            dpi: 1080, // High DPI for high resolution
             letterRendering: true,
         });
 

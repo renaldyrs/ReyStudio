@@ -188,7 +188,7 @@ button.secondary:hover {
 /* Screen 5: Customization */
 #capture-container {
     background-color: transparent;
-    border-radius: 8px;
+    
     width: 190px;
     padding: 1rem;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
@@ -212,7 +212,7 @@ button.secondary:hover {
 }
 
 .strip-photo {
-    width: 160px;
+    width: 155px;
     background: white;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
     overflow: hidden;
