@@ -462,7 +462,7 @@ button.secondary:hover {
 }
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
     h1 {
         font-size: 2rem;
     }
@@ -530,7 +530,7 @@ button.secondary:hover {
         width: 60px;
         height: 60px;
     }
-}
+} */
 
 @media print {
     .sticker-controls,
