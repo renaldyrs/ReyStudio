@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
     <link href="https://fonts.cdnfonts.com/css/halimun" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="styles.css">
+
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -33,37 +34,80 @@
         <button onclick="showScreen('screen3-template')">Continue</button>
     </div>
 
-    <!-- Screen 3: Template Selection -->
+    <!-- Screen 3: Template Selection with Overlay -->
     <div class="screen" id="screen3-template" style="background-image: url('background/bg.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;">
-        <h1  style="font-family: 'Blinker'; color: #ddd;">Choose Template</h1>
-        <p>Select a layout for your photo strip</p>
+        <h1 style="font-family: 'Blinker'; color: #ddd;">Choose Template & Overlay</h1>
+        <p>Select a layout and overlay style for your photo strip</p>
 
-        <div class="template-options">
-            <div class="template-option vertical-2 selected" onclick="selectTemplate(this, 'vertical-2')">
-                <h3>Vertical 2</h3>
-                <div class="template-preview">
-                    <div class="template-preview-cell"></div>
-                    <div class="template-preview-cell"></div>
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="openTemplateTab('templates-tab')">Templates</button>
+            <button class="tab-btn" onclick="openTemplateTab('overlays-tab')">Overlays</button>
+        </div>
+
+        <div id="templates-tab" class="tab-content active">
+            <div class="template-options">
+                <div class="template-option vertical-2 selected" onclick="selectTemplate(this, 'vertical-2')">
+                    <h3>Vertical 2</h3>
+                    <div class="template-preview">
+                        <div class="template-preview-cell"></div>
+                        <div class="template-preview-cell"></div>
+                        <div class="template-overlay" id="current-overlay-preview"></div>
+                    </div>
+                </div>
+                <div class="template-option vertical-3" onclick="selectTemplate(this, 'vertical-3')">
+                    <h3>Vertical 3</h3>
+                    <div class="template-preview">
+                        <div class="template-preview-cell"></div>
+                        <div class="template-preview-cell"></div>
+                        <div class="template-preview-cell"></div>
+                        <div class="template-overlay" id="current-overlay-preview"></div>
+                    </div>
+                </div>
+                <div class="template-option vertical-4" onclick="selectTemplate(this, 'vertical-4')">
+                    <h3>Vertical 4</h3>
+                    <div class="template-preview">
+                        <div class="template-preview-cell"></div>
+                        <div class="template-preview-cell"></div>
+                        <div class="template-preview-cell"></div>
+                        <div class="template-preview-cell"></div>
+                        <div class="template-overlay" id="current-overlay-preview"></div>
+                    </div>
                 </div>
             </div>
-            <div class="template-option vertical-3" onclick="selectTemplate(this, 'vertical-3')">
-                <h3>Vertical 3</h3>
-                <div class="template-preview">
-                    <div class="template-preview-cell"></div>
-                    <div class="template-preview-cell"></div>
-                    <div class="template-preview-cell"></div>
+        </div>
+
+        <div id="overlays-tab" class="tab-content">
+            <div class="overlay-options">
+                <div class="overlay-option selected" onclick="selectOverlay('none')">
+                    <div class="overlay-preview"
+                        style="background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
+                        <span>No Overlay</span>
+                    </div>
+                    <div class="overlay-name">None</div>
                 </div>
-            </div>
-            <div class="template-option vertical-4" onclick="selectTemplate(this, 'vertical-4')">
-                <h3>Vertical 4</h3>
-                <div class="template-preview">
-                    <div class="template-preview-cell"></div>
-                    <div class="template-preview-cell"></div>
-                    <div class="template-preview-cell"></div>
-                    <div class="template-preview-cell"></div>
+                <div class="overlay-option" onclick="selectOverlay('overlay/overlay1.png')">
+                    <div class="overlay-preview" style="background-image: url('overlay/overlay1.png')"></div>
+                    <div class="overlay-name">Floral Frame</div>
+                </div>
+                <div class="overlay-option" onclick="selectOverlay('overlay/overlay2.png')">
+                    <div class="overlay-preview" style="background-image: url('overlay/overlay2.png')"></div>
+                    <div class="overlay-name">Polaroid</div>
+                </div>
+                <div class="overlay-option" onclick="selectOverlay('overlay/overlay3.png')">
+                    <div class="overlay-preview" style="background-image: url('overlay/overlay3.png')"></div>
+                    <div class="overlay-name">Vintage</div>
+                </div>
+                <div class="overlay-option" onclick="document.getElementById('overlayUpload').click()">
+                    <div class="overlay-preview"
+                        style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                        <span>Upload</span>
+                    </div>
+                    <div class="overlay-name">Custom</div>
+                    <input type="file" id="overlayUpload" accept="image/*" style="display: none;"
+                        onchange="uploadOverlay(this)">
                 </div>
             </div>
         </div>
@@ -76,7 +120,7 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;">
-        <h1  style="font-family: 'Blinker'; color: #ddd;">Take Photos</h1>
+        <h1 style="font-family: 'Blinker'; color: #ddd;">Take Photos</h1>
         <div class="error-message" id="cameraError"></div>
         <div class="capture-preview-container">
             <div class="camera-wrapper">
@@ -97,8 +141,8 @@
             <button onclick="switchCamera()">Switch Camera</button>
             <button onclick="toggleFlash()" id="flashBtn">Flash: Off</button>
             <button onclick="toggleGrid()" id="gridBtn">Grid: Off</button>
-            <button onclick="retakeLastPhoto()" >Retake Last</button>
-            <button onclick="retakeAllPhotos()" >Retake All</button>
+            <button onclick="retakeLastPhoto()">Retake Last</button>
+            <button onclick="retakeAllPhotos()">Retake All</button>
         </div>
     </div>
 
@@ -107,7 +151,7 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;">
-        <h1  style="font-family: 'Blinker'; color: #ddd;">Customize</h1>
+        <h1 style="font-family: 'Blinker'; color: #ddd;">Customize</h1>
         <p>Add filters, backgrounds, and stickers to your photo strip</p>
 
         <div id="capture-container" style="background-size: cover;">
@@ -116,7 +160,8 @@
                 <!-- Photos will be inserted here -->
             </div>
             <div class="photo-footer">
-                <div class="footer-title"><img id="footerLogo" src="logo/logo.png" alt="" style="height: 50%; width: 50%;">
+                <div class="footer-title"><img id="footerLogo" src="logo/logo.png" alt=""
+                        style="height: 50%; width: 50%;">
                 </div>
                 <div class="footer-subtitle"></div>
             </div>
@@ -131,9 +176,8 @@
             <button class="tab-btn" onclick="openTab('sticker-tab')">Stickers</button>
             <button class="tab-btn" onclick="openTab('frame-tab')">Frames</button>
             <button class="tab-btn" onclick="openTab('logo-tab')">Logo</button>
-            <button class="tab-btn" onclick="openTab('overlay-tab')">Overlay</button>
         </div>
-        
+
         <div id="background-tab" class="tab-content" active>
             <div class="logo-options">
                 <!-- Solid Colors -->
@@ -152,24 +196,34 @@
                 <div class="background-option" onclick="selectBackground(this, '#E8D1FF')">
                     <div class="background-preview" style="background: #E8D1FF"></div>
                 </div>
-                
+
                 <!-- Gradients -->
-                <div class="background-option" onclick="selectBackground(this, 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)')">
-                    <div class="background-preview" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)"></div>
+                <div class="background-option"
+                    onclick="selectBackground(this, 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)')">
+                    <div class="background-preview"
+                        style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)"></div>
                 </div>
-                <div class="background-option" onclick="selectBackground(this, 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)')">
-                    <div class="background-preview" style="background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)"></div>
+                <div class="background-option"
+                    onclick="selectBackground(this, 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)')">
+                    <div class="background-preview"
+                        style="background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)"></div>
                 </div>
-                <div class="background-option" onclick="selectBackground(this, 'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)')">
-                    <div class="background-preview" style="background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)"></div>
+                <div class="background-option"
+                    onclick="selectBackground(this, 'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)')">
+                    <div class="background-preview"
+                        style="background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)"></div>
                 </div>
-                <div class="background-option" onclick="selectBackground(this, 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)')">
-                    <div class="background-preview" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)"></div>
+                <div class="background-option"
+                    onclick="selectBackground(this, 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)')">
+                    <div class="background-preview"
+                        style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)"></div>
                 </div>
-                <div class="background-option" onclick="selectBackground(this, 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)')">
-                    <div class="background-preview" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)"></div>
+                <div class="background-option"
+                    onclick="selectBackground(this, 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)')">
+                    <div class="background-preview"
+                        style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)"></div>
                 </div>
-                
+
                 <!-- Image Backgrounds -->
                 <div class="background-option" onclick="selectBackground(this, 'url(\'background/background.png\')')">
                     <div class="background-preview" style="background-image: url('background/background.png')"></div>
@@ -177,13 +231,14 @@
                 <div class="background-option" onclick="selectBackground(this, 'url(\'background/background1.png\')')">
                     <div class="background-preview" style="background-image: url('background/background1.png')"></div>
                 </div>
-                
+
                 <!-- Upload Option -->
                 <div class="background-option upload-option" onclick="document.getElementById('bgUpload').click()">
                     <div class="background-preview">
                         <span>Upload Custom</span>
                     </div>
-                    <input type="file" id="bgUpload" accept="image/*" style="display: none;" onchange="uploadBackground(this)">
+                    <input type="file" id="bgUpload" accept="image/*" style="display: none;"
+                        onchange="uploadBackground(this)">
                 </div>
             </div>
         </div>
@@ -282,37 +337,6 @@
             </div>
         </div>
 
-        <!-- New Overlay Template Tab -->
-        <div id="overlay-tab" class="tab-content">
-            <div class="overlay-options">
-                <div class="overlay-option" onclick="applyOverlay('none')">
-                    <div class="overlay-preview" style="background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
-                        <span>No Overlay</span>
-                    </div>
-                    <div class="overlay-name">None</div>
-                </div>
-                <div class="overlay-option" onclick="applyOverlay('overlay/overlay1.png')">
-                    <div class="overlay-preview" style="background-image: url('overlay/overlay1.png')"></div>
-                    <div class="overlay-name">Floral Frame</div>
-                </div>
-                <div class="overlay-option" onclick="applyOverlay('overlay/overlay2.png')">
-                    <div class="overlay-preview" style="background-image: url('overlay/overlay2.png')"></div>
-                    <div class="overlay-name">Polaroid</div>
-                </div>
-                <div class="overlay-option" onclick="applyOverlay('overlay/overlay3.png')">
-                    <div class="overlay-preview" style="background-image: url('overlay/overlay3.png')"></div>
-                    <div class="overlay-name">Vintage</div>
-                </div>
-                <div class="overlay-option" onclick="document.getElementById('overlayUpload').click()">
-                    <div class="overlay-preview" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
-                        <span>Upload</span>
-                    </div>
-                    <div class="overlay-name">Custom</div>
-                    <input type="file" id="overlayUpload" accept="image/*" style="display: none;" onchange="uploadOverlay(this)">
-                </div>
-            </div>
-        </div>
-
         <div class="action-buttons">
             <button onclick="returnToCamera()">Retake</button>
             <button onclick="downloadWithHtml2Canvas()" id="downloadBtn">Download</button>
@@ -321,8 +345,7 @@
         <div class="error-message" id="downloadError"></div>
     </div>
 
-    <script src="script.js">
-
-    </script>
+    <script src="script.js"></script>
 </body>
+
 </html>
