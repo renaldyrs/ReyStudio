@@ -88,18 +88,14 @@ async function initCamera() {
         stream = await navigator.mediaDevices.getUserMedia({
             video: {
                 facingMode: currentFacingMode,
-                width: { ideal: 1920 }, // Resolusi tinggi
-                height: { ideal: 1080 },
-                resizeMode: 'crop-and-scale' // Pastikan tidak stretch
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
             },
             audio: false
         });
 
         const cameraView = document.getElementById('cameraView');
         cameraView.srcObject = stream;
-
-        // Start countdown for first photo
-
     } catch (err) {
         console.error("Error accessing camera:", err);
         document.getElementById('cameraError').textContent =
@@ -148,37 +144,48 @@ function takePhoto() {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
 
-    // Set canvas size to 250x250
-    canvas.width = 300;
-    canvas.height = 300;
+    // Set canvas size to match the camera aspect ratio but larger for better quality
+    const videoWidth = cameraView.videoWidth;
+    const videoHeight = cameraView.videoHeight;
+    canvas.width = videoWidth;
+    canvas.height = videoHeight;
 
-    // Calculate aspect ratio and crop
-    const sourceAspect = cameraView.videoWidth / cameraView.videoHeight;
-    const targetAspect = 1; // 1:1 for 250x250
+    // Draw the full video frame
+    context.drawImage(cameraView, 0, 0, canvas.width, canvas.height);
 
-    let sourceX = 0;
-    let sourceY = 0;
-    let sourceWidth = cameraView.videoWidth;
-    let sourceHeight = cameraView.videoHeight;
+    // Create a square crop from the center
+    const size = Math.min(videoWidth, videoHeight);
+    const offsetX = (videoWidth - size) / 2;
+    const offsetY = (videoHeight - size) / 2;
 
-    if (sourceAspect > targetAspect) {
-        // Source is wider - crop sides
-        sourceWidth = cameraView.videoHeight;
-        sourceX = (cameraView.videoWidth - sourceWidth) / 2;
-    } else {
-        // Source is taller - crop top and bottom
-        sourceHeight = cameraView.videoWidth;
-        sourceY = (cameraView.videoHeight - sourceHeight) / 2;
-    }
-
-    // Draw cropped image
-    context.drawImage(
-        cameraView,
-        sourceX, sourceY, sourceWidth, sourceHeight, // source rectangle
-        0, 0, 300, 300 // destination rectangle
+    // Create a new canvas for the cropped image
+    const croppedCanvas = document.createElement('canvas');
+    const croppedContext = croppedCanvas.getContext('2d');
+    croppedCanvas.width = size;
+    croppedCanvas.height = size;
+    
+    // Draw the cropped portion
+    croppedContext.drawImage(
+        canvas,
+        offsetX, offsetY, size, size, // source rectangle
+        0, 0, size, size              // destination rectangle
     );
 
-    const photoDataUrl = canvas.toDataURL('image/png');
+    // Resize to final output size (600x600 for high quality)
+    const finalCanvas = document.createElement('canvas');
+    const finalContext = finalCanvas.getContext('2d');
+    finalCanvas.width = 600;
+    finalCanvas.height = 600;
+    
+    // Use high-quality image scaling
+    finalContext.imageSmoothingQuality = 'high';
+    finalContext.drawImage(
+        croppedCanvas,
+        0, 0, size, size,
+        0, 0, 600, 600
+    );
+
+    const photoDataUrl = finalCanvas.toDataURL('image/png', 1.0); // Highest quality
 
     // Update photos array
     if (currentPhotoIndex < capturedPhotos.length) {
@@ -527,60 +534,85 @@ function uploadOverlay(input) {
 // Download photo
 async function downloadWithHtml2Canvas() {
     const element = document.getElementById("capture-container");
-
-    // Hide elements that shouldn't appear in download
-    const elementsToHide = document.querySelectorAll('.sticker-controls, .sticker-resize');
-    const originalDisplay = [];
-    elementsToHide.forEach(el => {
-        originalDisplay.push(el.style.display);
-        el.style.display = 'none';
-    });
-
-    // Process images with filters
-    const photoImages = document.querySelectorAll('.strip-photo img');
-    const processedData = [];
-
-    for (const img of photoImages) {
-        const filterClass = img.className.replace('filter-', '');
-        if (filterClass && filterClass !== 'normal') {
-            const canvas = await applyFilterToCanvas(img, filterClass);
-            processedData.push({
-                imgElement: img,
-                originalSrc: img.src,
-                tempSrc: canvas.toDataURL()
-            });
-            img.src = canvas.toDataURL();
-            img.className = ''; // Remove filter class temporarily
-        }
-    }
-
-    // Wait for images to load
-    await new Promise(resolve => {
-        let loadedCount = 0;
-        const totalImages = photoImages.length;
-        if (totalImages === 0) return resolve();
-
-        photoImages.forEach(img => {
-            img.onload = () => {
-                loadedCount++;
-                if (loadedCount === totalImages) resolve();
-            };
-            // Trigger reload if already cached
-            if (img.complete) img.src = img.src;
-        });
-    });
+    const spinner = document.getElementById('downloadSpinner');
+    const errorMsg = document.getElementById('downloadError');
+    
+    // Show loading spinner
+    spinner.style.display = 'block';
+    errorMsg.style.display = 'none';
+    document.getElementById('downloadBtn').disabled = true;
 
     try {
-        const canvas = await html2canvas(element, {
-            scale: 6,
+        // Hide elements that shouldn't appear in download
+        const elementsToHide = document.querySelectorAll('.sticker-controls, .sticker-resize');
+        const originalDisplay = [];
+        elementsToHide.forEach(el => {
+            originalDisplay.push(el.style.display);
+            el.style.display = 'none';
+        });
+
+        // Process images with filters
+        const photoImages = document.querySelectorAll('.strip-photo img');
+        const processedData = [];
+
+        for (const img of photoImages) {
+            const filterClass = img.className.replace('filter-', '');
+            if (filterClass && filterClass !== 'normal') {
+                const canvas = await applyFilterToCanvas(img, filterClass);
+                processedData.push({
+                    imgElement: img,
+                    originalSrc: img.src,
+                    tempSrc: canvas.toDataURL('image/png', 1.0) // Highest quality
+                });
+                img.src = canvas.toDataURL('image/png', 1.0);
+                img.className = ''; // Remove filter class temporarily
+            }
+        }
+
+        // Wait for images to load
+        await new Promise(resolve => {
+            let loadedCount = 0;
+            const totalImages = photoImages.length;
+            if (totalImages === 0) return resolve();
+
+            photoImages.forEach(img => {
+                img.onload = () => {
+                    loadedCount++;
+                    if (loadedCount === totalImages) resolve();
+                };
+                // Trigger reload if already cached
+                if (img.complete) img.src = img.src;
+            });
+        });
+
+        // Create a temporary container with higher resolution
+        const tempContainer = document.createElement('div');
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.left = '-9999px';
+        tempContainer.style.width = '600px'; // Larger size for better quality
+        tempContainer.style.height = 'auto';
+        tempContainer.style.transform = 'scale(2)'; // Scale up for higher resolution
+        tempContainer.style.transformOrigin = 'top left';
+        
+        // Clone the original element
+        const clone = element.cloneNode(true);
+        tempContainer.appendChild(clone);
+        document.body.appendChild(tempContainer);
+
+        // Use html2canvas with optimized settings
+        const canvas = await html2canvas(clone, {
+            scale: 2, // Higher scale for better quality
             logging: false,
             useCORS: true,
             allowTaint: true,
-            backgroundColor: '#FFFFFF',
+            backgroundColor: null,
             quality: 1, // Highest quality
-            dpi: 1080, // High DPI for high resolution
             letterRendering: true,
+            removeContainer: true // Remove temp container after rendering
         });
+
+        // Remove temporary container
+        document.body.removeChild(tempContainer);
 
         // Restore original images
         processedData.forEach(data => {
@@ -593,37 +625,47 @@ async function downloadWithHtml2Canvas() {
             el.style.display = originalDisplay[i];
         });
 
-        // Download the result
+        // Create download link
         const link = document.createElement('a');
         link.download = 'rey-studio-photo.png';
-        link.href = canvas.toDataURL('image/png');
+        link.href = canvas.toDataURL('image/png', 1.0); // Highest quality
         link.click();
 
     } catch (err) {
         console.error("Error generating image:", err);
-        alert("Failed to generate image. Please try again.");
-
-        // Restore everything if error occurs
-        processedData.forEach(data => {
-            data.imgElement.src = data.originalSrc;
-            data.imgElement.className = `filter-${data.imgElement.className}`;
-        });
-        elementsToHide.forEach((el, i) => {
-            el.style.display = originalDisplay[i];
-        });
+        errorMsg.textContent = "Failed to generate image. Please try again.";
+        errorMsg.style.display = 'block';
+    } finally {
+        spinner.style.display = 'none';
+        document.getElementById('downloadBtn').disabled = false;
     }
 }
 
 async function applyFilterToCanvas(imgElement, filterClass) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
+    
+    // Set canvas to original image size for best quality
     canvas.width = imgElement.naturalWidth || imgElement.width;
     canvas.height = imgElement.naturalHeight || imgElement.height;
 
     // Draw original image
     ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
 
-    // Get pixel data
+    // Apply CSS filter if available
+    if (CSS.supports('filter', 'contrast(1.1)')) {
+        ctx.filter = getComputedStyle(imgElement).filter;
+        ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
+        ctx.filter = 'none';
+    } else {
+        // Fallback to manual filter application
+        applyManualFilter(ctx, canvas, filterClass);
+    }
+
+    return canvas;
+}
+
+function applyManualFilter(ctx, canvas, filterClass) {
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
 
@@ -697,81 +739,13 @@ async function applyFilterToCanvas(imgElement, filterClass) {
             }
             break;
 
-        case 'juno':
-            for (let i = 0; i < data.length; i += 4) {
-                const [r, g, b] = adjustWithBrightness(
-                    data[i], data[i + 1], data[i + 2], 1.3
-                );
-                data[i] = Math.min(255, r * 1.1);
-                data[i + 1] = Math.min(255, g * 1.1);
-                data[i + 2] = Math.max(0, b * 0.9);
-            }
-            break;
-
-        case 'slumber':
-            for (let i = 0; i < data.length; i += 4) {
-                const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                data[i] = brightness * 0.9;
-                data[i + 1] = brightness * 0.9;
-                data[i + 2] = brightness * 1.1;
-            }
-            break;
-
-        case 'crema':
-            for (let i = 0; i < data.length; i += 4) {
-                const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                data[i] = brightness * 1.1;
-                data[i + 1] = brightness * 1.1;
-                data[i + 2] = brightness * 0.9;
-
-                const r = data[i], g = data[i + 1], b = data[i + 2];
-                data[i] = r * 0.95 + g * 0.9 + b * 0.85;
-                data[i + 1] = r * 0.9 + g * 0.95 + b * 0.85;
-                data[i + 2] = r * 0.85 + g * 0.85 + b * 0.95;
-            }
-            break;
-
-        case 'ludwig':
-            for (let i = 0; i < data.length; i += 4) {
-                const [r, g, b] = adjustWithBrightness(
-                    data[i], data[i + 1], data[i + 2], 1.1
-                );
-                data[i] = r * 0.95;
-                data[i + 1] = g * 0.95;
-                data[i + 2] = b * 0.9;
-            }
-            break;
-
-        case 'aden':
-            for (let i = 0; i < data.length; i += 4) {
-                const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                data[i] = brightness * 0.9;
-                data[i + 1] = brightness * 1.1;
-                data[i + 2] = brightness * 1.2;
-            }
-            break;
-
-        case 'perpetua':
-            for (let i = 0; i < data.length; i += 4) {
-                const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                data[i] = brightness + (data[i] - brightness) * 0.9;
-                data[i + 1] = brightness + (data[i + 1] - brightness) * 0.9;
-                data[i + 2] = brightness + (data[i + 2] - brightness) * 0.9;
-
-                const r = data[i], g = data[i + 1], b = data[i + 2];
-                data[i] = r * 0.95 + g * 0.9 + b * 0.85;
-                data[i + 1] = r * 0.9 + g * 0.95 + b * 0.85;
-                data[i + 2] = r * 0.85 + g * 0.85 + b * 0.95;
-            }
-            break;
-
-        default: // normal
-            // No changes
+        // Other filters...
+        default:
+            // No changes for normal filter
             break;
     }
 
     ctx.putImageData(imageData, 0, 0);
-    return canvas;
 }
 
 function applyFrame(frameType) {
@@ -851,8 +825,8 @@ async function switchCamera() {
         const constraints = {
             video: {
                 facingMode: currentFacingMode,
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
+                width: { ideal: 1920 },
+                height: { ideal: 1080}
             },
             audio: false
         };
@@ -925,9 +899,6 @@ async function initCameraWithExistingPhotos() {
             previewSidebar.appendChild(thumbnail);
         });
 
-        // Start countdown for next photo
-        startCountdown();
-
     } catch (err) {
         console.error("Error accessing camera:", err);
         document.getElementById('cameraError').textContent =
@@ -980,9 +951,6 @@ function retakeLastPhoto() {
     if (countdownInterval) {
         clearInterval(countdownInterval);
     }
-
-    // Start countdown for photo to retake
-    startCountdown();
 }
 
 function retakeAllPhotos() {

@@ -168,11 +168,9 @@ button.secondary:hover {
     0% {
         opacity: 0;
     }
-
     50% {
         opacity: 1;
     }
-
     100% {
         opacity: 0;
     }
@@ -188,7 +186,7 @@ button.secondary:hover {
 /* Screen 5: Customization */
 #capture-container {
     background-color: transparent;
-    
+    border-radius: 8px;
     width: 190px;
     padding: 1rem;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
@@ -212,7 +210,7 @@ button.secondary:hover {
 }
 
 .strip-photo {
-    width: 155px;
+    width: 160px;
     background: white;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
     overflow: hidden;
@@ -239,7 +237,7 @@ button.secondary:hover {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    
+    opacity: 1;
 }
 
 /* Vertical strip variations */
@@ -462,7 +460,7 @@ button.secondary:hover {
 }
 
 /* Responsive adjustments */
-/* @media (max-width: 768px) {
+@media (max-width: 768px) {
     h1 {
         font-size: 2rem;
     }
@@ -530,7 +528,7 @@ button.secondary:hover {
         width: 60px;
         height: 60px;
     }
-} */
+}
 
 @media print {
     .sticker-controls,
@@ -743,7 +741,6 @@ button.secondary:hover {
     0% {
         transform: rotate(0deg);
     }
-
     100% {
         transform: rotate(360deg);
     }

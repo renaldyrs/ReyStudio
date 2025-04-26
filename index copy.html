@@ -7,842 +7,837 @@
     <title>Rey Studio</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
     <link href="https://fonts.cdnfonts.com/css/halimun" rel="stylesheet">
-
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     
-
     <style>
         * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
-}
-
-body {
-    color: #333;
-    min-height: 100vh;
-    overflow-x: hidden;
-}
-
-.screen {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 2rem;
-    text-align: center;
-}
-
-.screen.active {
-    display: flex;
-}
-
-h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1.5rem;
-    color: #333;
-    font-weight: 500;
-}
-
-h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    color: #555;
-    font-weight: 400;
-}
-
-p {
-    font-size: 1rem;
-    margin-bottom: 2rem;
-    color: #777;
-    max-width: 500px;
-    line-height: 1.6;
-}
-
-button {
-    background-color: #333;
-    color: white;
-    border: none;
-    padding: 0.8rem 2.5rem;
-    font-size: 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-}
-
-button:hover {
-    background-color: #222;
-    transform: translateY(-1px);
-}
-
-button.secondary {
-    background-color: transparent;
-    color: #333;
-    border: 1px solid #ddd;
-}
-
-button.secondary:hover {
-    background-color: #f5f5f5;
-}
-
-/* Screen 1: Welcome */
-#screen1 {
-    background-color: #fafafa;
-}
-
-/* Screen 2: Instructions */
-#screen2 {
-    background-color: #fafafa;
-}
-
-/* Screen 3: Template Selection */
-.template-options {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1.5rem;
-    margin: 2rem 0;
-    width: 100%;
-    max-width: 800px;
-}
-
-.template-option {
-    background: white;
-    border-radius: 8px;
-    padding: 1.5rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    width: 220px;
-    border: 1px solid #eee;
-}
-
-.template-option:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.template-option.selected {
-    border: 1px solid #333;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.template-preview {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    height: 120px;
-    margin-top: 1rem;
-}
-
-.template-preview-cell {
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    flex: 1;
-}
-
-/* Screen 4: Camera View */
-.camera-container {
-    position: relative;
-    width: 90%;
-    max-width: 500px;
-    margin: 1.5rem auto;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 100px rgb(255, 150, 150);
-}
-
-#cameraView {
-    width: 100%;
-    display: block;
-    background: #333;
-}
-
-.flash {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: white;
-    opacity: 0;
-    z-index: 10;
-    pointer-events: none;
-}
-
-.flash-animation {
-    animation: flash 0.3s ease-out;
-}
-
-@keyframes flash {
-    0% {
-        opacity: 0;
-    }
-
-    50% {
-        opacity: 1;
-    }
-
-    100% {
-        opacity: 0;
-    }
-}
-
-#countdown {
-    font-size: 1.2rem;
-    margin: 1rem 0;
-    color: #333;
-    font-weight: 500;
-}
-
-/* Screen 5: Customization */
-#capture-container {
-    background-color: transparent;
-    border-radius: 8px;
-    width: 190px;
-    padding: 1rem;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    border: 1px solid #eee;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    transition: background 0.3s ease;
-    position: relative;
-}
-
-/* Update the strip template container */
-.strip-template {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    background: transparent;
-    width: 100%;
-    max-width: 300px;
-    position: relative;
-}
-
-.strip-photo {
-    width: 160px;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-    overflow: hidden;
-    border-radius: 4px;
-    position: relative;
-}
-
-.strip-photo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-/* New overlay template styles */
-.overlay-template {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 5; /* Above photos but below stickers */
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    opacity: 0.8;
-}
-
-/* Vertical strip variations */
-.vertical-2 .strip-photo {
-    height: 160px;
-}
-
-.vertical-3 .strip-photo {
-    height: 160px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
-}
-
-.vertical-4 .strip-photo {
-    height: 160px;
-}
-
-/* Filter, Background, Sticker Options */
-.filter-options,
-.background-options,
-.sticker-options,
-.overlay-options {
-    display: flex;
-    overflow-x: auto;
-    gap: 0.8rem;
-    padding: 1rem 0;
-    margin: 1rem 0;
-    width: 100%;
-    max-width: 800px;
-}
-
-.filter-option,
-.background-option,
-.sticker-option,
-.overlay-option {
-    min-width: 80px;
-    height: 80px;
-    border-radius: 8px;
-    cursor: pointer;
-    overflow: hidden;
-    position: relative;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s;
-    border: 1px solid #eee;
-}
-
-.filter-option:hover,
-.background-option:hover,
-.sticker-option:hover,
-.overlay-option:hover {
-    transform: scale(1.03);
-}
-
-.filter-option.selected,
-.background-option.selected,
-.sticker-option.selected,
-.overlay-option.selected {
-    border: 1px solid #333;
-}
-
-.filter-preview,
-.background-preview,
-.sticker-preview,
-.overlay-preview {
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-}
-
-.filter-name {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    font-size: 0.7rem;
-    padding: 0.3rem;
-    text-align: center;
-}
-
-/* Instagram Filter Classes */
-.filter-normal {
-    filter: none;
-}
-
-.filter-clarendon {
-    filter: contrast(1.2) saturate(1.35);
-}
-
-.filter-gingham {
-    filter: contrast(0.9) brightness(1.1) saturate(0.9) sepia(0.2);
-}
-
-.filter-moon {
-    filter: brightness(1.1) contrast(0.9) saturate(0.6) sepia(0.3);
-}
-
-.filter-lark {
-    filter: contrast(0.9) brightness(1.1) saturate(1.1);
-}
-
-.filter-reyes {
-    filter: contrast(0.85) brightness(1.1) saturate(0.75) sepia(0.3);
-}
-
-/* Tab navigation */
-.tab-nav {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 1rem;
-    gap: 0.5rem;
-}
-
-.tab-btn {
-    padding: 0.5rem 1rem;
-    background: #f5f5f5;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    color: #555;
-}
-
-.tab-btn.active {
-    background: #333;
-    color: white;
-}
-
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-/* Photo Footer */
-.photo-footer {
-    text-align: center;
-    padding: 1rem 0 0;
-    background: transparent;
-    margin-top: 1rem;
-    border-top: 1px solid #eee;
-}
-
-.footer-title {
-    font-size: 1rem;
-    font-weight: 500;
-    color: #333;
-}
-
-.footer-subtitle {
-    font-size: 0.8rem;
-    color: #777;
-    margin-top: 0.2rem;
-}
-
-/* Action Buttons */
-.action-buttons {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
-    justify-content: center;
-}
-
-/* Sticker elements */
-.sticker {
-    position: absolute;
-    z-index: 10; /* Above everything */
-    cursor: move;
-    user-select: none;
-    transform-origin: center;
-    transition: transform 0.1s;
-}
-
-.sticker img {
-    width: 100%;
-    height: auto;
-}
-
-.sticker-controls {
-    position: absolute;
-    top: -12px;
-    right: -12px;
-    display: none;
-    z-index: 11;
-}
-
-.sticker:hover .sticker-controls {
-    display: block;
-}
-
-.sticker-delete {
-    background: #ff6b6b;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 0.8rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.sticker-resize {
-    position: absolute;
-    bottom: -8px;
-    right: -8px;
-    width: 16px;
-    height: 16px;
-    background: #333;
-    border-radius: 50%;
-    cursor: nwse-resize;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    h1 {
-        font-size: 2rem;
-    }
-
-    h2 {
-        font-size: 1.3rem;
-    }
-
-    .template-options {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .template-option {
-        width: 80%;
-    }
-
-    .filter-option,
-    .background-option,
-    .sticker-option,
-    .overlay-option {
-        width: 70px;
-        height: 70px;
-    }
-}
-
-@media (max-width: 480px) {
-    h1 {
-        font-size: 1.8rem;
-    }
-
-    h2 {
-        font-size: 1.1rem;
-    }
-
-    .screen {
-        padding: 1.5rem;
-    }
-
-    .action-buttons {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .action-buttons button {
-        width: 100%;
-    }
-
-    .vertical-2 .strip-photo {
-        height: 200px;
-    }
-
-    .vertical-3 .strip-photo {
-        height: 140px;
-    }
-
-    .vertical-4 .strip-photo {
-        height: 100px;
-    }
-
-    .filter-option,
-    .background-option,
-    .sticker-option,
-    .overlay-option {
-        width: 60px;
-        height: 60px;
-    }
-}
-
-@media print {
-    .sticker-controls,
-    .sticker-resize {
-        display: none !important;
-    }
-}
-
-.capture-preview-container {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    width: 100%;
-    max-width: 900px;
-    margin: 1rem auto;
-}
-
-.camera-wrapper {
-    flex: 1;
-    max-width: 500px;
-}
-
-.preview-sidebar {
-    width: 200px;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.preview-thumbnail {
-    width: 70%;
-    height: 100px;
-    border-radius: 5px;
-    object-fit: cover;
-    border: 2px solid #eee;
-    transition: all 0.2s;
-}
-
-.preview-thumbnail:hover {
-    border-color: #333;
-    transform: scale(1.05);
-}
-
-@media (max-width: 768px) {
-    .capture-preview-container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .preview-sidebar {
-        width: 100%;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .preview-thumbnail {
-        width: 80px;
-        height: 80px;
-    }
-}
-
-.frame-options {
-    display: flex;
-    gap: 1rem;
-    padding: 1rem;
-    overflow-x: auto;
-}
-
-.frame-option {
-    min-width: 100px;
-    cursor: pointer;
-}
-
-.frame-preview {
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f0f0f0;
-    border-radius: 4px;
-}
-
-/* Frame Styles */
-.polaroid-frame {
-    border: 10px solid white;
-    border-bottom: 30px solid white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    background-color: white;
-}
-
-.vintage-frame {
-    border: 5px solid #d4c9a8;
-    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.1), 0 0 8px rgba(0, 0, 0, 0.2);
-    background-color: #f0e8d0;
-}
-
-.instax-frame {
-    border: 8px solid #f0f0f0;
-    border-bottom: 15px solid #f0f0f0;
-    background-color: #f8f8f8;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.wood-frame {
-    border: 10px solid transparent;
-    padding: 5px;
-    background:
-        linear-gradient(to right, #8B4513, #A0522D) border-box;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.gold-frame {
-    border: 8px solid transparent;
-    padding: 3px;
-    background:
-        linear-gradient(135deg, #FFD700, #D4AF37) border-box;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-.neon-frame {
-    border: 2px solid #00f2fe;
-    box-shadow: 0 0 10px #00f2fe, inset 0 0 5px #00f2fe;
-    background-color: black;
-}
-
-.polaroid-color-frame {
-    border: 10px solid #ff9a9e;
-    border-bottom: 30px solid #ff9a9e;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    background-color: #ff9a9e;
-}
-
-.gold-frame {
-    border: 12px solid transparent;
-    padding: 5px;
-    background:
-        linear-gradient(135deg, #FFD700, #D4AF37, #FFD700) border-box;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-.frame-preview {
-    height: 80px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f5f5f5;
-    background-size: cover;
-    color: #333;
-    font-weight: 500;
-    border-radius: 4px;
-}
-
-.camera-controls {
-    display: flex;
-    gap: 0.5rem;
-    margin: 1rem 0;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.camera-grid {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.3) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.3) 1px, transparent 1px);
-    background-size: 25% 25%;
-    display: none;
-}
-
-.preview-thumbnail {
-    position: relative;
-    cursor: pointer;
-}
-
-.preview-thumbnail:hover::after {
-    content: "×";
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: #ff6b6b;
-    color: white;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-}
-
-/* Loading spinner */
-.spinner {
-    display: none;
-    width: 40px;
-    height: 40px;
-    margin: 20px auto;
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-radius: 50%;
-    border-top: 4px solid #333;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-/* Error message */
-.error-message {
-    color: #ff6b6b;
-    margin: 1rem 0;
-    font-weight: 500;
-    display: none;
-}
-
-.logo-options {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1rem;
-    padding: 1rem;
-}
-
-.logo-option {
-    width: 120px;
-    cursor: pointer;
-    text-align: center;
-}
-
-.logo-option.selected {
-    border-bottom: 2px solid #333;
-}
-
-.logo-preview {
-    width: 100px;
-    height: 50px;
-    margin: 0 auto;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    border: 1px solid #eee;
-    border-radius: 4px;
-}
-
-.logo-name {
-    margin-top: 0.5rem;
-    font-size: 0.8rem;
-    color: #555;
-}
-
-.background-option .background-preview span {
-    padding: 0.5rem;
-    color: #555;
-}
-
-/* Overlay template options */
-.overlay-options {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1rem;
-    padding: 1rem;
-}
-
-.overlay-option {
-    width: 100px;
-    height: 100px;
-    cursor: pointer;
-    position: relative;
-}
-
-.overlay-preview {
-    width: 100%;
-    height: 100%;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    border: 1px solid #eee;
-    border-radius: 4px;
-}
-
-.overlay-name {
-    margin-top: 0.5rem;
-    font-size: 0.7rem;
-    color: #555;
-    text-align: center;
-}
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            color: #333;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #555;
+            font-weight: 400;
+        }
+
+        p {
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            color: #777;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+
+        button {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 0.8rem 2.5rem;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background-color: #222;
+            transform: translateY(-1px);
+        }
+
+        button.secondary {
+            background-color: transparent;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        button.secondary:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Screen 1: Welcome */
+        #screen1 {
+            background-color: #fafafa;
+        }
+
+        /* Screen 2: Instructions */
+        #screen2 {
+            background-color: #fafafa;
+        }
+
+        /* Screen 3: Template Selection */
+        .template-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .template-option {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            width: 220px;
+            border: 1px solid #eee;
+        }
+
+        .template-option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .template-option.selected {
+            border: 1px solid #333;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .template-preview {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            height: 120px;
+            margin-top: 1rem;
+        }
+
+        .template-preview-cell {
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            flex: 1;
+        }
+
+        /* Screen 4: Camera View */
+        .camera-container {
+            position: relative;
+            width: 90%;
+            max-width: 500px;
+            margin: 1.5rem auto;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 100px rgb(255, 150, 150);
+        }
+
+        #cameraView {
+            width: 100%;
+            display: block;
+            background: #333;
+        }
+
+        .flash {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            opacity: 0;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .flash-animation {
+            animation: flash 0.3s ease-out;
+        }
+
+        @keyframes flash {
+            0% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        #countdown {
+            font-size: 1.2rem;
+            margin: 1rem 0;
+            color: #333;
+            font-weight: 500;
+        }
+
+        /* Screen 5: Customization */
+        #capture-container {
+            background-color: transparent;
+            border-radius: 8px;
+            width: 190px;
+            padding: 1rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            border: 1px solid #eee;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background 0.3s ease;
+            position: relative;
+        }
+
+        /* Update the strip template container */
+        .strip-template {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background: transparent;
+            width: 100%;
+            max-width: 300px;
+            position: relative;
+        }
+
+        .strip-photo {
+            width: 160px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .strip-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* New overlay template styles */
+        .overlay-template {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5; /* Above photos but below stickers */
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 1;
+        }
+
+        /* Vertical strip variations */
+        .vertical-2 .strip-photo {
+            height: 160px;
+        }
+
+        .vertical-3 .strip-photo {
+            height: 160px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+        }
+
+        .vertical-4 .strip-photo {
+            height: 160px;
+        }
+
+        /* Filter, Background, Sticker Options */
+        .filter-options,
+        .background-options,
+        .sticker-options,
+        .overlay-options {
+            display: flex;
+            overflow-x: auto;
+            gap: 0.8rem;
+            padding: 1rem 0;
+            margin: 1rem 0;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .filter-option,
+        .background-option,
+        .sticker-option,
+        .overlay-option {
+            min-width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+            border: 1px solid #eee;
+        }
+
+        .filter-option:hover,
+        .background-option:hover,
+        .sticker-option:hover,
+        .overlay-option:hover {
+            transform: scale(1.03);
+        }
+
+        .filter-option.selected,
+        .background-option.selected,
+        .sticker-option.selected,
+        .overlay-option.selected {
+            border: 1px solid #333;
+        }
+
+        .filter-preview,
+        .background-preview,
+        .sticker-preview,
+        .overlay-preview {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .filter-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.3rem;
+            text-align: center;
+        }
+
+        /* Instagram Filter Classes */
+        .filter-normal {
+            filter: none;
+        }
+
+        .filter-clarendon {
+            filter: contrast(1.2) saturate(1.35);
+        }
+
+        .filter-gingham {
+            filter: contrast(0.9) brightness(1.1) saturate(0.9) sepia(0.2);
+        }
+
+        .filter-moon {
+            filter: brightness(1.1) contrast(0.9) saturate(0.6) sepia(0.3);
+        }
+
+        .filter-lark {
+            filter: contrast(0.9) brightness(1.1) saturate(1.1);
+        }
+
+        .filter-reyes {
+            filter: contrast(0.85) brightness(1.1) saturate(0.75) sepia(0.3);
+        }
+
+        /* Tab navigation */
+        .tab-nav {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+            gap: 0.5rem;
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            background: #f5f5f5;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .tab-btn.active {
+            background: #333;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Photo Footer */
+        .photo-footer {
+            text-align: center;
+            padding: 1rem 0 0;
+            background: transparent;
+            margin-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .footer-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .footer-subtitle {
+            font-size: 0.8rem;
+            color: #777;
+            margin-top: 0.2rem;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+        }
+
+        /* Sticker elements */
+        .sticker {
+            position: absolute;
+            z-index: 10; /* Above everything */
+            cursor: move;
+            user-select: none;
+            transform-origin: center;
+            transition: transform 0.1s;
+        }
+
+        .sticker img {
+            width: 100%;
+            height: auto;
+        }
+
+        .sticker-controls {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            display: none;
+            z-index: 11;
+        }
+
+        .sticker:hover .sticker-controls {
+            display: block;
+        }
+
+        .sticker-delete {
+            background: #ff6b6b;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.8rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .sticker-resize {
+            position: absolute;
+            bottom: -8px;
+            right: -8px;
+            width: 16px;
+            height: 16px;
+            background: #333;
+            border-radius: 50%;
+            cursor: nwse-resize;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+            }
+
+            .template-options {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .template-option {
+                width: 80%;
+            }
+
+            .filter-option,
+            .background-option,
+            .sticker-option,
+            .overlay-option {
+                width: 70px;
+                height: 70px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.1rem;
+            }
+
+            .screen {
+                padding: 1.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .action-buttons button {
+                width: 100%;
+            }
+
+            .vertical-2 .strip-photo {
+                height: 200px;
+            }
+
+            .vertical-3 .strip-photo {
+                height: 140px;
+            }
+
+            .vertical-4 .strip-photo {
+                height: 100px;
+            }
+
+            .filter-option,
+            .background-option,
+            .sticker-option,
+            .overlay-option {
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+        @media print {
+            .sticker-controls,
+            .sticker-resize {
+                display: none !important;
+            }
+        }
+
+        .capture-preview-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            width: 100%;
+            max-width: 900px;
+            margin: 1rem auto;
+        }
+
+        .camera-wrapper {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .preview-sidebar {
+            width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .preview-thumbnail {
+            width: 70%;
+            height: 100px;
+            border-radius: 5px;
+            object-fit: cover;
+            border: 2px solid #eee;
+            transition: all 0.2s;
+        }
+
+        .preview-thumbnail:hover {
+            border-color: #333;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .capture-preview-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .preview-sidebar {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .preview-thumbnail {
+                width: 80px;
+                height: 80px;
+            }
+        }
+
+        .frame-options {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            overflow-x: auto;
+        }
+
+        .frame-option {
+            min-width: 100px;
+            cursor: pointer;
+        }
+
+        .frame-preview {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        /* Frame Styles */
+        .polaroid-frame {
+            border: 10px solid white;
+            border-bottom: 30px solid white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
+
+        .vintage-frame {
+            border: 5px solid #d4c9a8;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.1), 0 0 8px rgba(0, 0, 0, 0.2);
+            background-color: #f0e8d0;
+        }
+
+        .instax-frame {
+            border: 8px solid #f0f0f0;
+            border-bottom: 15px solid #f0f0f0;
+            background-color: #f8f8f8;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .wood-frame {
+            border: 10px solid transparent;
+            padding: 5px;
+            background:
+                linear-gradient(to right, #8B4513, #A0522D) border-box;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .gold-frame {
+            border: 8px solid transparent;
+            padding: 3px;
+            background:
+                linear-gradient(135deg, #FFD700, #D4AF37) border-box;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .neon-frame {
+            border: 2px solid #00f2fe;
+            box-shadow: 0 0 10px #00f2fe, inset 0 0 5px #00f2fe;
+            background-color: black;
+        }
+
+        .polaroid-color-frame {
+            border: 10px solid #ff9a9e;
+            border-bottom: 30px solid #ff9a9e;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #ff9a9e;
+        }
+
+        .gold-frame {
+            border: 12px solid transparent;
+            padding: 5px;
+            background:
+                linear-gradient(135deg, #FFD700, #D4AF37, #FFD700) border-box;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .frame-preview {
+            height: 80px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f5f5f5;
+            background-size: cover;
+            color: #333;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+
+        .camera-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .camera-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.3) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.3) 1px, transparent 1px);
+            background-size: 25% 25%;
+            display: none;
+        }
+
+        .preview-thumbnail {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .preview-thumbnail:hover::after {
+            content: "×";
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ff6b6b;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            margin: 20px auto;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #333;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Error message */
+        .error-message {
+            color: #ff6b6b;
+            margin: 1rem 0;
+            font-weight: 500;
+            display: none;
+        }
+
+        .logo-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .logo-option {
+            width: 120px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .logo-option.selected {
+            border-bottom: 2px solid #333;
+        }
+
+        .logo-preview {
+            width: 100px;
+            height: 50px;
+            margin: 0 auto;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+
+        .logo-name {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #555;
+        }
+
+        .background-option .background-preview span {
+            padding: 0.5rem;
+            color: #555;
+        }
+
+        /* Overlay template options */
+        .overlay-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .overlay-option {
+            width: 100px;
+            height: 100px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .overlay-preview {
+            width: 100%;
+            height: 100%;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+
+        .overlay-name {
+            margin-top: 0.5rem;
+            font-size: 0.7rem;
+            color: #555;
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -935,7 +930,6 @@ button.secondary:hover {
             <button onclick="retakeLastPhoto()" >Retake Last</button>
             <button onclick="retakeAllPhotos()" >Retake All</button>
         </div>
-
     </div>
 
     <!-- Screen 5: Customization -->
@@ -963,7 +957,6 @@ button.secondary:hover {
         justify-content: center;
         gap: 1rem;
         padding: 1rem;">
-            <!-- <button class="tab-btn active" onclick="openTab('filter-tab')">Filters</button> -->
             <button class="tab-btn active" onclick="openTab('background-tab')">Background</button>
             <button class="tab-btn" onclick="openTab('sticker-tab')">Stickers</button>
             <button class="tab-btn" onclick="openTab('frame-tab')">Frames</button>
@@ -971,42 +964,6 @@ button.secondary:hover {
             <button class="tab-btn" onclick="openTab('overlay-tab')">Overlay</button>
         </div>
         
-
-        <!-- <div id="filter-tab" class="tab-content active">
-            <div class="logo-options">
-                <div class="filter-option selected" onclick="applyFilter('normal')">
-                    <div class="filter-preview filter-normal"
-                        style="background-image: url('https://picsum.photos/200/200')"></div>
-                    <div class="filter-name">Normal</div>
-                </div>
-                <div class="filter-option" onclick="applyFilter('clarendon')">
-                    <div class="filter-preview filter-clarendon"
-                        style="background-image: url('https://picsum.photos/200/200')"></div>
-                    <div class="filter-name">Clarendon</div>
-                </div>
-                <div class="filter-option" onclick="applyFilter('gingham')">
-                    <div class="filter-preview filter-gingham"
-                        style="background-image: url('https://picsum.photos/200/200')"></div>
-                    <div class="filter-name">Gingham</div>
-                </div>
-                <div class="filter-option" onclick="applyFilter('moon')">
-                    <div class="filter-preview filter-moon"
-                        style="background-image: url('https://picsum.photos/200/200')"></div>
-                    <div class="filter-name">Moon</div>
-                </div>
-                <div class="filter-option" onclick="applyFilter('lark')">
-                    <div class="filter-preview filter-lark"
-                        style="background-image: url('https://picsum.photos/200/200')"></div>
-                    <div class="filter-name">Lark</div>
-                </div>
-                <div class="filter-option" onclick="applyFilter('reyes')">
-                    <div class="filter-preview filter-reyes"
-                        style="background-image: url('https://picsum.photos/200/200')"></div>
-                    <div class="filter-name">Reyes</div>
-                </div>
-            </div>
-        </div> -->
-
         <div id="background-tab" class="tab-content" active>
             <div class="logo-options">
                 <!-- Solid Colors -->
@@ -1285,18 +1242,14 @@ async function initCamera() {
         stream = await navigator.mediaDevices.getUserMedia({
             video: {
                 facingMode: currentFacingMode,
-                width: { ideal: 1920 }, // Resolusi tinggi
-                height: { ideal: 1080 },
-                resizeMode: 'crop-and-scale' // Pastikan tidak stretch
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
             },
             audio: false
         });
 
         const cameraView = document.getElementById('cameraView');
         cameraView.srcObject = stream;
-
-        // Start countdown for first photo
-
     } catch (err) {
         console.error("Error accessing camera:", err);
         document.getElementById('cameraError').textContent =
@@ -1345,37 +1298,48 @@ function takePhoto() {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
 
-    // Set canvas size to 250x250
-    canvas.width = 300;
-    canvas.height = 300;
+    // Set canvas size to match the camera aspect ratio but larger for better quality
+    const videoWidth = cameraView.videoWidth;
+    const videoHeight = cameraView.videoHeight;
+    canvas.width = videoWidth;
+    canvas.height = videoHeight;
 
-    // Calculate aspect ratio and crop
-    const sourceAspect = cameraView.videoWidth / cameraView.videoHeight;
-    const targetAspect = 1; // 1:1 for 250x250
+    // Draw the full video frame
+    context.drawImage(cameraView, 0, 0, canvas.width, canvas.height);
 
-    let sourceX = 0;
-    let sourceY = 0;
-    let sourceWidth = cameraView.videoWidth;
-    let sourceHeight = cameraView.videoHeight;
+    // Create a square crop from the center
+    const size = Math.min(videoWidth, videoHeight);
+    const offsetX = (videoWidth - size) / 2;
+    const offsetY = (videoHeight - size) / 2;
 
-    if (sourceAspect > targetAspect) {
-        // Source is wider - crop sides
-        sourceWidth = cameraView.videoHeight;
-        sourceX = (cameraView.videoWidth - sourceWidth) / 2;
-    } else {
-        // Source is taller - crop top and bottom
-        sourceHeight = cameraView.videoWidth;
-        sourceY = (cameraView.videoHeight - sourceHeight) / 2;
-    }
-
-    // Draw cropped image
-    context.drawImage(
-        cameraView,
-        sourceX, sourceY, sourceWidth, sourceHeight, // source rectangle
-        0, 0, 300, 300 // destination rectangle
+    // Create a new canvas for the cropped image
+    const croppedCanvas = document.createElement('canvas');
+    const croppedContext = croppedCanvas.getContext('2d');
+    croppedCanvas.width = size;
+    croppedCanvas.height = size;
+    
+    // Draw the cropped portion
+    croppedContext.drawImage(
+        canvas,
+        offsetX, offsetY, size, size, // source rectangle
+        0, 0, size, size              // destination rectangle
     );
 
-    const photoDataUrl = canvas.toDataURL('image/png');
+    // Resize to final output size (600x600 for high quality)
+    const finalCanvas = document.createElement('canvas');
+    const finalContext = finalCanvas.getContext('2d');
+    finalCanvas.width = 600;
+    finalCanvas.height = 600;
+    
+    // Use high-quality image scaling
+    finalContext.imageSmoothingQuality = 'high';
+    finalContext.drawImage(
+        croppedCanvas,
+        0, 0, size, size,
+        0, 0, 600, 600
+    );
+
+    const photoDataUrl = finalCanvas.toDataURL('image/png', 1.0); // Highest quality
 
     // Update photos array
     if (currentPhotoIndex < capturedPhotos.length) {
@@ -1724,60 +1688,85 @@ function uploadOverlay(input) {
 // Download photo
 async function downloadWithHtml2Canvas() {
     const element = document.getElementById("capture-container");
-
-    // Hide elements that shouldn't appear in download
-    const elementsToHide = document.querySelectorAll('.sticker-controls, .sticker-resize');
-    const originalDisplay = [];
-    elementsToHide.forEach(el => {
-        originalDisplay.push(el.style.display);
-        el.style.display = 'none';
-    });
-
-    // Process images with filters
-    const photoImages = document.querySelectorAll('.strip-photo img');
-    const processedData = [];
-
-    for (const img of photoImages) {
-        const filterClass = img.className.replace('filter-', '');
-        if (filterClass && filterClass !== 'normal') {
-            const canvas = await applyFilterToCanvas(img, filterClass);
-            processedData.push({
-                imgElement: img,
-                originalSrc: img.src,
-                tempSrc: canvas.toDataURL()
-            });
-            img.src = canvas.toDataURL();
-            img.className = ''; // Remove filter class temporarily
-        }
-    }
-
-    // Wait for images to load
-    await new Promise(resolve => {
-        let loadedCount = 0;
-        const totalImages = photoImages.length;
-        if (totalImages === 0) return resolve();
-
-        photoImages.forEach(img => {
-            img.onload = () => {
-                loadedCount++;
-                if (loadedCount === totalImages) resolve();
-            };
-            // Trigger reload if already cached
-            if (img.complete) img.src = img.src;
-        });
-    });
+    const spinner = document.getElementById('downloadSpinner');
+    const errorMsg = document.getElementById('downloadError');
+    
+    // Show loading spinner
+    spinner.style.display = 'block';
+    errorMsg.style.display = 'none';
+    document.getElementById('downloadBtn').disabled = true;
 
     try {
-        const canvas = await html2canvas(element, {
-            scale: 6,
+        // Hide elements that shouldn't appear in download
+        const elementsToHide = document.querySelectorAll('.sticker-controls, .sticker-resize');
+        const originalDisplay = [];
+        elementsToHide.forEach(el => {
+            originalDisplay.push(el.style.display);
+            el.style.display = 'none';
+        });
+
+        // Process images with filters
+        const photoImages = document.querySelectorAll('.strip-photo img');
+        const processedData = [];
+
+        for (const img of photoImages) {
+            const filterClass = img.className.replace('filter-', '');
+            if (filterClass && filterClass !== 'normal') {
+                const canvas = await applyFilterToCanvas(img, filterClass);
+                processedData.push({
+                    imgElement: img,
+                    originalSrc: img.src,
+                    tempSrc: canvas.toDataURL('image/png', 1.0) // Highest quality
+                });
+                img.src = canvas.toDataURL('image/png', 1.0);
+                img.className = ''; // Remove filter class temporarily
+            }
+        }
+
+        // Wait for images to load
+        await new Promise(resolve => {
+            let loadedCount = 0;
+            const totalImages = photoImages.length;
+            if (totalImages === 0) return resolve();
+
+            photoImages.forEach(img => {
+                img.onload = () => {
+                    loadedCount++;
+                    if (loadedCount === totalImages) resolve();
+                };
+                // Trigger reload if already cached
+                if (img.complete) img.src = img.src;
+            });
+        });
+
+        // Create a temporary container with higher resolution
+        const tempContainer = document.createElement('div');
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.left = '-9999px';
+        tempContainer.style.width = '600px'; // Larger size for better quality
+        tempContainer.style.height = 'auto';
+        tempContainer.style.transform = 'scale(2)'; // Scale up for higher resolution
+        tempContainer.style.transformOrigin = 'top left';
+        
+        // Clone the original element
+        const clone = element.cloneNode(true);
+        tempContainer.appendChild(clone);
+        document.body.appendChild(tempContainer);
+
+        // Use html2canvas with optimized settings
+        const canvas = await html2canvas(clone, {
+            scale: 2, // Higher scale for better quality
             logging: false,
             useCORS: true,
             allowTaint: true,
-            backgroundColor: '#FFFFFF',
+            backgroundColor: null,
             quality: 1, // Highest quality
-            dpi: 300, // High DPI for high resolution
             letterRendering: true,
+            removeContainer: true // Remove temp container after rendering
         });
+
+        // Remove temporary container
+        document.body.removeChild(tempContainer);
 
         // Restore original images
         processedData.forEach(data => {
@@ -1790,37 +1779,47 @@ async function downloadWithHtml2Canvas() {
             el.style.display = originalDisplay[i];
         });
 
-        // Download the result
+        // Create download link
         const link = document.createElement('a');
         link.download = 'rey-studio-photo.png';
-        link.href = canvas.toDataURL('image/png');
+        link.href = canvas.toDataURL('image/png', 1.0); // Highest quality
         link.click();
 
     } catch (err) {
         console.error("Error generating image:", err);
-        alert("Failed to generate image. Please try again.");
-
-        // Restore everything if error occurs
-        processedData.forEach(data => {
-            data.imgElement.src = data.originalSrc;
-            data.imgElement.className = `filter-${data.imgElement.className}`;
-        });
-        elementsToHide.forEach((el, i) => {
-            el.style.display = originalDisplay[i];
-        });
+        errorMsg.textContent = "Failed to generate image. Please try again.";
+        errorMsg.style.display = 'block';
+    } finally {
+        spinner.style.display = 'none';
+        document.getElementById('downloadBtn').disabled = false;
     }
 }
 
 async function applyFilterToCanvas(imgElement, filterClass) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
+    
+    // Set canvas to original image size for best quality
     canvas.width = imgElement.naturalWidth || imgElement.width;
     canvas.height = imgElement.naturalHeight || imgElement.height;
 
     // Draw original image
     ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
 
-    // Get pixel data
+    // Apply CSS filter if available
+    if (CSS.supports('filter', 'contrast(1.1)')) {
+        ctx.filter = getComputedStyle(imgElement).filter;
+        ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
+        ctx.filter = 'none';
+    } else {
+        // Fallback to manual filter application
+        applyManualFilter(ctx, canvas, filterClass);
+    }
+
+    return canvas;
+}
+
+function applyManualFilter(ctx, canvas, filterClass) {
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
 
@@ -1894,81 +1893,13 @@ async function applyFilterToCanvas(imgElement, filterClass) {
             }
             break;
 
-        case 'juno':
-            for (let i = 0; i < data.length; i += 4) {
-                const [r, g, b] = adjustWithBrightness(
-                    data[i], data[i + 1], data[i + 2], 1.3
-                );
-                data[i] = Math.min(255, r * 1.1);
-                data[i + 1] = Math.min(255, g * 1.1);
-                data[i + 2] = Math.max(0, b * 0.9);
-            }
-            break;
-
-        case 'slumber':
-            for (let i = 0; i < data.length; i += 4) {
-                const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                data[i] = brightness * 0.9;
-                data[i + 1] = brightness * 0.9;
-                data[i + 2] = brightness * 1.1;
-            }
-            break;
-
-        case 'crema':
-            for (let i = 0; i < data.length; i += 4) {
-                const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                data[i] = brightness * 1.1;
-                data[i + 1] = brightness * 1.1;
-                data[i + 2] = brightness * 0.9;
-
-                const r = data[i], g = data[i + 1], b = data[i + 2];
-                data[i] = r * 0.95 + g * 0.9 + b * 0.85;
-                data[i + 1] = r * 0.9 + g * 0.95 + b * 0.85;
-                data[i + 2] = r * 0.85 + g * 0.85 + b * 0.95;
-            }
-            break;
-
-        case 'ludwig':
-            for (let i = 0; i < data.length; i += 4) {
-                const [r, g, b] = adjustWithBrightness(
-                    data[i], data[i + 1], data[i + 2], 1.1
-                );
-                data[i] = r * 0.95;
-                data[i + 1] = g * 0.95;
-                data[i + 2] = b * 0.9;
-            }
-            break;
-
-        case 'aden':
-            for (let i = 0; i < data.length; i += 4) {
-                const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                data[i] = brightness * 0.9;
-                data[i + 1] = brightness * 1.1;
-                data[i + 2] = brightness * 1.2;
-            }
-            break;
-
-        case 'perpetua':
-            for (let i = 0; i < data.length; i += 4) {
-                const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                data[i] = brightness + (data[i] - brightness) * 0.9;
-                data[i + 1] = brightness + (data[i + 1] - brightness) * 0.9;
-                data[i + 2] = brightness + (data[i + 2] - brightness) * 0.9;
-
-                const r = data[i], g = data[i + 1], b = data[i + 2];
-                data[i] = r * 0.95 + g * 0.9 + b * 0.85;
-                data[i + 1] = r * 0.9 + g * 0.95 + b * 0.85;
-                data[i + 2] = r * 0.85 + g * 0.85 + b * 0.95;
-            }
-            break;
-
-        default: // normal
-            // No changes
+        // Other filters...
+        default:
+            // No changes for normal filter
             break;
     }
 
     ctx.putImageData(imageData, 0, 0);
-    return canvas;
 }
 
 function applyFrame(frameType) {
@@ -2048,8 +1979,8 @@ async function switchCamera() {
         const constraints = {
             video: {
                 facingMode: currentFacingMode,
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
+                width: { ideal: 1920 },
+                height: { ideal: 1080}
             },
             audio: false
         };
@@ -2122,9 +2053,6 @@ async function initCameraWithExistingPhotos() {
             previewSidebar.appendChild(thumbnail);
         });
 
-        // Start countdown for next photo
-        startCountdown();
-
     } catch (err) {
         console.error("Error accessing camera:", err);
         document.getElementById('cameraError').textContent =
@@ -2177,9 +2105,6 @@ function retakeLastPhoto() {
     if (countdownInterval) {
         clearInterval(countdownInterval);
     }
-
-    // Start countdown for photo to retake
-    startCountdown();
 }
 
 function retakeAllPhotos() {
@@ -2289,5 +2214,4 @@ window.addEventListener('beforeunload', () => {
 });
     </script>
 </body>
-
 </html>
