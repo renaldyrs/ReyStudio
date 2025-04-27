@@ -1,7 +1,7 @@
 
         // Global variables
         let stream = null;
-        let selectedBackground = '#FFD1D1';
+        let selectedBackground = '';
         let countdownInterval = null;
         let currentPhotoIndex = 0;
         let capturedPhotos = [];
