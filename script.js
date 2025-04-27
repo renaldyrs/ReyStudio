@@ -21,9 +21,9 @@
 
         // Template configurations
         const templateConfig = {
-            'vertical-2': {
+          <!--  'vertical-2': {
                 photosNeeded: 2,
-                containerClass: 'vertical-2',
+                containerClass: 'vertical-2', -->
                 photoClass: 'vertical-photo'
             },
             'vertical-3': {
