@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rey Studio</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
     <link href="https://fonts.cdnfonts.com/css/halimun" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -116,12 +118,20 @@
     </div>
 
     <!-- Screen 4: Camera View -->
-    <div class="screen" id="screen4-camera" style="background-image: url('background/bg.png');
+        <div class="screen" id="screen4-camera" style="background-image: url('background/bg.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;">
         <h1 style="font-family: 'Blinker'; color: #ddd;">Take Photos</h1>
         <div class="error-message" id="cameraError"></div>
+        
+        <!-- Tambahkan pilihan kamera -->
+        <div class="camera-selection">
+            <select id="cameraSelect" class="camera-select">
+                <option value="">Select Camera</option>
+            </select>
+        </div>
+        
         <div class="capture-preview-container">
             <div class="camera-wrapper">
                 <div class="camera-container">
