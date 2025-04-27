@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rey Studio</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
     <link href="https://fonts.cdnfonts.com/css/halimun" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -146,7 +148,14 @@
             flex: 1;
         }
 
-        .template-overlay {
+        /* Combined template styles */
+        .template-with-overlay {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .template-overlay-preview {
             position: absolute;
             top: 0;
             left: 0;
@@ -155,8 +164,8 @@
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            pointer-events: none;
             opacity: 0.8;
+            pointer-events: none;
         }
 
         /* Screen 4: Camera View */
@@ -254,21 +263,6 @@
             display: block;
         }
 
-        /* New overlay template styles */
-        .overlay-template {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 5;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            opacity: 1;
-        }
-
         /* Vertical strip variations */
         .vertical-2 .strip-photo {
             height: 160px;
@@ -286,8 +280,7 @@
         /* Filter, Background, Sticker Options */
         .filter-options,
         .background-options,
-        .sticker-options,
-        .overlay-options {
+        .sticker-options {
             display: flex;
             overflow-x: auto;
             gap: 0.8rem;
@@ -299,8 +292,7 @@
 
         .filter-option,
         .background-option,
-        .sticker-option,
-        .overlay-option {
+        .sticker-option {
             min-width: 80px;
             height: 80px;
             border-radius: 8px;
@@ -314,22 +306,19 @@
 
         .filter-option:hover,
         .background-option:hover,
-        .sticker-option:hover,
-        .overlay-option:hover {
+        .sticker-option:hover {
             transform: scale(1.03);
         }
 
         .filter-option.selected,
         .background-option.selected,
-        .sticker-option.selected,
-        .overlay-option.selected {
+        .sticker-option.selected {
             border: 1px solid #333;
         }
 
         .filter-preview,
         .background-preview,
-        .sticker-preview,
-        .overlay-preview {
+        .sticker-preview {
             width: 100%;
             height: 100%;
             background-size: cover;
@@ -721,57 +710,16 @@
             color: #555;
         }
 
-        /* Overlay template options */
-        .overlay-options {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 1rem;
-            padding: 1rem;
+        .camera-selection {
+            margin: 1rem 0;
         }
 
-        .overlay-option {
-            width: 100px;
-            height: 100px;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .overlay-preview {
-            width: 100%;
-            height: 100%;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            border: 1px solid #eee;
+        .camera-select {
+            padding: 0.5rem 1rem;
             border-radius: 4px;
-        }
-
-        .overlay-name {
-            margin-top: 0.5rem;
-            font-size: 0.7rem;
-            color: #555;
-            text-align: center;
-        }
-
-        /* Combined template styles */
-        .template-with-overlay {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-
-        .template-overlay-preview {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            opacity: 0.8;
-            pointer-events: none;
+            border: 1px solid #ddd;
+            background: white;
+            font-size: 1rem;
         }
     </style>
 </head>
@@ -798,80 +746,106 @@
         <button onclick="showScreen('screen3-template')">Continue</button>
     </div>
 
-    <!-- Screen 3: Template Selection with Overlay -->
+    <!-- Screen 3: Combined Template Selection -->
     <div class="screen" id="screen3-template" style="background-image: url('background/bg.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;">
-        <h1 style="font-family: 'Blinker'; color: #ddd;">Choose Template & Overlay</h1>
-        <p>Select a layout and overlay style for your photo strip</p>
+        <h1 style="font-family: 'Blinker'; color: #ddd;">Choose Your Template</h1>
+        <p>Select a layout and style for your photo strip</p>
 
-        <div class="tab-nav">
-            <button class="tab-btn active" onclick="openTemplateTab('templates-tab')">Templates</button>
-            <button class="tab-btn" onclick="openTemplateTab('overlays-tab')">Overlays</button>
-        </div>
-
-        <div id="templates-tab" class="tab-content active">
-            <div class="template-options">
-                <div class="template-option vertical-2 selected" onclick="selectTemplate(this, 'vertical-2')">
-                    <h3>Vertical 2</h3>
+        <div class="template-options">
+            <!-- Vertical 2 Template -->
+            <div class="template-option vertical-2 selected" onclick="selectTemplate(this, 'vertical-2')">
+                <h3>Vertical 2</h3>
+                <div class="template-with-overlay">
                     <div class="template-preview">
                         <div class="template-preview-cell"></div>
                         <div class="template-preview-cell"></div>
-                        <div class="template-overlay" id="current-overlay-preview"></div>
                     </div>
+                    <div class="template-overlay-preview" id="template-overlay-preview-1"></div>
                 </div>
-                <div class="template-option vertical-3" onclick="selectTemplate(this, 'vertical-3')">
-                    <h3>Vertical 3</h3>
+            </div>
+            
+            <!-- Vertical 3 Template -->
+            <div class="template-option vertical-3" onclick="selectTemplate(this, 'vertical-3')">
+                <h3>Vertical 3</h3>
+                <div class="template-with-overlay">
                     <div class="template-preview">
                         <div class="template-preview-cell"></div>
                         <div class="template-preview-cell"></div>
                         <div class="template-preview-cell"></div>
-                        <div class="template-overlay" id="current-overlay-preview"></div>
                     </div>
+                    <div class="template-overlay-preview" id="template-overlay-preview-2"></div>
                 </div>
-                <div class="template-option vertical-4" onclick="selectTemplate(this, 'vertical-4')">
-                    <h3>Vertical 4</h3>
+            </div>
+            
+            <!-- Vertical 4 Template -->
+            <div class="template-option vertical-4" onclick="selectTemplate(this, 'vertical-4')">
+                <h3>Vertical 4</h3>
+                <div class="template-with-overlay">
                     <div class="template-preview">
                         <div class="template-preview-cell"></div>
                         <div class="template-preview-cell"></div>
                         <div class="template-preview-cell"></div>
                         <div class="template-preview-cell"></div>
-                        <div class="template-overlay" id="current-overlay-preview"></div>
                     </div>
+                    <div class="template-overlay-preview" id="template-overlay-preview-3"></div>
                 </div>
             </div>
         </div>
 
-        <div id="overlays-tab" class="tab-content">
-            <div class="overlay-options">
-                <div class="overlay-option selected" onclick="selectOverlay('none')">
-                    <div class="overlay-preview"
-                        style="background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
-                        <span>No Overlay</span>
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="openTemplateTab('styles-tab')">Styles</button>
+            <button class="tab-btn" onclick="openTemplateTab('frames-tab')">Frames</button>
+        </div>
+
+        <div id="styles-tab" class="tab-content active">
+            <div class="logo-options">
+                <!-- Basic Styles -->
+                <div class="background-option selected" onclick="selectStyle('none', 'basic')">
+                    <div class="background-preview" style="background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
+                        <span>Basic</span>
                     </div>
-                    <div class="overlay-name">None</div>
                 </div>
-                <div class="overlay-option" onclick="selectOverlay('overlay/overlay1.png')">
-                    <div class="overlay-preview" style="background-image: url('overlay/overlay1.png')"></div>
-                    <div class="overlay-name">Floral Frame</div>
+                <div class="background-option" onclick="selectStyle('overlay/overlay1.png', 'floral')">
+                    <div class="background-preview" style="background-image: url('overlay/overlay1.png')"></div>
                 </div>
-                <div class="overlay-option" onclick="selectOverlay('overlay/overlay2.png')">
-                    <div class="overlay-preview" style="background-image: url('overlay/overlay2.png')"></div>
-                    <div class="overlay-name">Polaroid</div>
+                <div class="background-option" onclick="selectStyle('overlay/overlay2.png', 'polaroid')">
+                    <div class="background-preview" style="background-image: url('overlay/overlay2.png')"></div>
                 </div>
-                <div class="overlay-option" onclick="selectOverlay('overlay/overlay3.png')">
-                    <div class="overlay-preview" style="background-image: url('overlay/overlay3.png')"></div>
-                    <div class="overlay-name">Vintage</div>
+                <div class="background-option" onclick="selectStyle('overlay/overlay3.png', 'vintage')">
+                    <div class="background-preview" style="background-image: url('overlay/overlay3.png')"></div>
                 </div>
-                <div class="overlay-option" onclick="document.getElementById('overlayUpload').click()">
-                    <div class="overlay-preview"
-                        style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
-                        <span>Upload</span>
+                <div class="background-option" onclick="document.getElementById('styleUpload').click()">
+                    <div class="background-preview" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                        <span>Custom</span>
                     </div>
-                    <div class="overlay-name">Custom</div>
-                    <input type="file" id="overlayUpload" accept="image/*" style="display: none;"
-                        onchange="uploadOverlay(this)">
+                    <input type="file" id="styleUpload" accept="image/*" style="display: none;" onchange="uploadStyle(this)">
+                </div>
+            </div>
+        </div>
+
+        <div id="frames-tab" class="tab-content">
+            <div class="logo-options">
+                <div class="frame-option selected" onclick="selectFrame('none')">
+                    <div class="frame-preview" style="border: none; background: #f5f5f5;">No Frame</div>
+                </div>
+                <div class="frame-option" onclick="selectFrame('polaroid')">
+                    <div class="frame-preview polaroid-frame" style="background: white; border-bottom: 30px solid white;">
+                        <div style="height: 40px; background: white;"></div>
+                        <div style="height: 20px; background: #f5f5f5;"></div>
+                    </div>
+                </div>
+                <div class="frame-option" onclick="selectFrame('vintage')">
+                    <div class="frame-preview vintage-frame" style="background: #f0e8d0; border: 5px solid #d4c9a8;">
+                        <div style="height: 60px; background: #f0e8d0;"></div>
+                    </div>
+                </div>
+                <div class="frame-option" onclick="selectFrame('instax')">
+                    <div class="frame-preview instax-frame" style="background: #f8f8f8; border-bottom: 15px solid #f0f0f0;">
+                        <div style="height: 45px; background: #f8f8f8;"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -886,6 +860,14 @@
     background-repeat: no-repeat;">
         <h1 style="font-family: 'Blinker'; color: #ddd;">Take Photos</h1>
         <div class="error-message" id="cameraError"></div>
+        
+        <!-- Camera selection dropdown -->
+        <div class="camera-selection">
+            <select id="cameraSelect" class="camera-select">
+                <option value="">Select Camera</option>
+            </select>
+        </div>
+        
         <div class="capture-preview-container">
             <div class="camera-wrapper">
                 <div class="camera-container">
@@ -919,7 +901,7 @@
         <p>Add filters, backgrounds, and stickers to your photo strip</p>
 
         <div id="capture-container" style="background-size: cover;">
-            <!-- Overlay template will be added here -->
+            <!-- Combined template with overlay will be added here -->
             <div class="strip-template" id="stripTemplate">
                 <!-- Photos will be inserted here -->
             </div>
@@ -938,11 +920,10 @@
         padding: 1rem;">
             <button class="tab-btn active" onclick="openTab('background-tab')">Background</button>
             <button class="tab-btn" onclick="openTab('sticker-tab')">Stickers</button>
-            <button class="tab-btn" onclick="openTab('frame-tab')">Frames</button>
             <button class="tab-btn" onclick="openTab('logo-tab')">Logo</button>
         </div>
 
-        <div id="background-tab" class="tab-content" active>
+        <div id="background-tab" class="tab-content active">
             <div class="logo-options">
                 <!-- Solid Colors -->
                 <div class="background-option" onclick="selectBackground(this, '#FFD1D1')">
@@ -1024,57 +1005,6 @@
             </div>
         </div>
 
-        <div id="frame-tab" class="tab-content">
-            <div class="logo-options">
-                <div class="frame-option selected" onclick="applyFrame('none')">
-                    <div class="frame-preview" style="border: none; background: #f5f5f5;">No Frame</div>
-                </div>
-                <div class="frame-option" onclick="applyFrame('polaroid')">
-                    <div class="frame-preview polaroid-frame"
-                        style="background: white; border-bottom: 30px solid white;">
-                        <div style="height: 40px; background: white;"></div>
-                        <div style="height: 20px; background: #f5f5f5;"></div>
-                    </div>
-                </div>
-                <div class="frame-option" onclick="applyFrame('vintage')">
-                    <div class="frame-preview vintage-frame" style="background: #f0e8d0; border: 5px solid #d4c9a8;">
-                        <div style="height: 60px; background: #f0e8d0;"></div>
-                    </div>
-                </div>
-                <div class="frame-option" onclick="applyFrame('instax')">
-                    <div class="frame-preview instax-frame"
-                        style="background: #f8f8f8; border-bottom: 15px solid #f0f0f0;">
-                        <div style="height: 45px; background: #f8f8f8;"></div>
-                    </div>
-                </div>
-                <div class="frame-option" onclick="applyFrame('wood')">
-                    <div class="frame-preview wood-frame"
-                        style="background: linear-gradient(to right, #8B4513, #A0522D); padding: 5px;">
-                        <div style="height: 50px; background: white;"></div>
-                    </div>
-                </div>
-                <div class="frame-option" onclick="applyFrame('gold')">
-                    <div class="frame-preview gold-frame"
-                        style="background: linear-gradient(135deg, #FFD700, #D4AF37); padding: 3px;">
-                        <div style="height: 54px; background: white;"></div>
-                    </div>
-                </div>
-                <div class="frame-option" onclick="applyFrame('neon')">
-                    <div class="frame-preview neon-frame"
-                        style="background: black; border: 2px solid #00f2fe; box-shadow: 0 0 10px #00f2fe;">
-                        <div style="height: 56px; background: black;"></div>
-                    </div>
-                </div>
-                <div class="frame-option" onclick="applyFrame('polaroid-color')">
-                    <div class="frame-preview polaroid-color-frame"
-                        style="background: #ff9a9e; border-bottom: 30px solid #ff9a9e;">
-                        <div style="height: 40px; background: #ff9a9e;"></div>
-                        <div style="height: 20px; background: #fad0c4;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div id="logo-tab" class="tab-content">
             <div class="logo-options">
                 <div class="logo-option selected" onclick="changeLogo('logo/spring.png')">
@@ -1112,7 +1042,7 @@
     <script>
         // Global variables
         let stream = null;
-        let selectedBackground = '#FFD1D1';
+        let selectedBackground = '';
         let countdownInterval = null;
         let currentPhotoIndex = 0;
         let capturedPhotos = [];
@@ -1128,7 +1058,10 @@
         let gridOn = false;
         let flashElement = null;
         let isCountingDown = false;
-        let currentOverlay = 'none';
+        let currentStyle = 'none';
+        let currentFrame = 'none';
+        let videoDevices = [];
+        let currentDeviceId = null;
 
         // Template configurations
         const templateConfig = {
@@ -1146,26 +1079,6 @@
                 photosNeeded: 4,
                 containerClass: 'vertical-4',
                 photoClass: 'vertical-photo'
-            }
-        };
-
-        // Overlay configurations
-        const overlayConfig = {
-            'none': {
-                name: 'No Overlay',
-                url: null
-            },
-            'overlay/overlay1.png': {
-                name: 'Floral Frame',
-                url: 'overlay/overlay1.png'
-            },
-            'overlay/overlay2.png': {
-                name: 'Polaroid',
-                url: 'overlay/overlay2.png'
-            },
-            'overlay/overlay3.png': {
-                name: 'Vintage',
-                url: 'overlay/overlay3.png'
             }
         };
 
@@ -1216,33 +1129,41 @@
             element.classList.add('selected');
             selectedTemplate = templateType;
             photosNeeded = templateConfig[templateType].photosNeeded;
-            
-            // Update the overlay preview in the selected template
-            updateTemplateOverlayPreview();
         }
 
-        // Select overlay
-        function selectOverlay(overlayUrl) {
-            currentOverlay = overlayUrl;
+        // Select style (combined layout and overlay)
+        function selectStyle(styleUrl, styleName) {
+            currentStyle = styleUrl;
             
             // Update selected state in UI
-            document.querySelectorAll('.overlay-option').forEach(option => {
+            document.querySelectorAll('#styles-tab .background-option').forEach(option => {
                 option.classList.remove('selected');
             });
             event.currentTarget.classList.add('selected');
             
-            // Update the overlay preview in all templates
-            updateTemplateOverlayPreview();
+            // Update the style preview in all templates
+            updateTemplateStylePreview();
         }
 
-        // Update the overlay preview in template options
-        function updateTemplateOverlayPreview() {
-            const overlayPreviews = document.querySelectorAll('.template-overlay');
-            overlayPreviews.forEach(preview => {
-                if (currentOverlay === 'none') {
+        // Select frame
+        function selectFrame(frameType) {
+            currentFrame = frameType;
+            
+            // Update selected state in UI
+            document.querySelectorAll('#frames-tab .frame-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+        }
+
+        // Update the style preview in template options
+        function updateTemplateStylePreview() {
+            const stylePreviews = document.querySelectorAll('.template-overlay-preview');
+            stylePreviews.forEach(preview => {
+                if (currentStyle === 'none') {
                     preview.style.backgroundImage = 'none';
                 } else {
-                    preview.style.backgroundImage = `url('${currentOverlay}')`;
+                    preview.style.backgroundImage = `url('${currentStyle}')`;
                 }
             });
         }
@@ -1258,24 +1179,89 @@
                 currentPhotoIndex = 0;
                 capturedPhotos = [];
 
-                // Access the camera
-                stream = await navigator.mediaDevices.getUserMedia({
-                    video: {
-                        facingMode: currentFacingMode,
-                        width: { ideal: 1920 },
-                        height: { ideal: 1080 }
-                    },
-                    audio: false
-                });
-
-                const cameraView = document.getElementById('cameraView');
-                cameraView.srcObject = stream;
+                // Get list of camera devices
+                await getCameraDevices();
+                
+                // If cameras are detected, use the first one as default
+                if (videoDevices.length > 0) {
+                    currentDeviceId = videoDevices[0].deviceId;
+                    await startCamera(currentDeviceId);
+                } else {
+                    throw new Error("No cameras found");
+                }
             } catch (err) {
                 console.error("Error accessing camera:", err);
                 document.getElementById('cameraError').textContent =
                     "Could not access the camera. Please make sure you've granted camera permissions and that your camera is working properly.";
                 document.getElementById('cameraError').style.display = 'block';
                 document.getElementById('captureBtn').disabled = true;
+            }
+        }
+
+        // Get list of available camera devices
+        async function getCameraDevices() {
+            try {
+                // Ensure camera permissions are granted
+                await navigator.mediaDevices.getUserMedia({ video: true });
+                
+                // Enumerate devices
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                videoDevices = devices.filter(device => device.kind === 'videoinput');
+                
+                // Update camera selection dropdown
+                const cameraSelect = document.getElementById('cameraSelect');
+                cameraSelect.innerHTML = '<option value="">Select Camera</option>';
+                
+                videoDevices.forEach(device => {
+                    const option = document.createElement('option');
+                    option.value = device.deviceId;
+                    option.text = device.label || `Camera ${cameraSelect.length}`;
+                    cameraSelect.appendChild(option);
+                });
+                
+                // Add event listener for camera change
+                cameraSelect.addEventListener('change', async () => {
+                    if (cameraSelect.value) {
+                        currentDeviceId = cameraSelect.value;
+                        await startCamera(currentDeviceId);
+                    }
+                });
+            } catch (err) {
+                console.error("Error enumerating devices:", err);
+                throw err;
+            }
+        }
+
+        // Start camera with specific deviceId
+        async function startCamera(deviceId) {
+            // Stop any running stream
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+
+            try {
+                const constraints = {
+                    video: {
+                        deviceId: { exact: deviceId },
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        frameRate: { ideal: 60 }
+                    },
+                    audio: false
+                };
+
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                const cameraView = document.getElementById('cameraView');
+                cameraView.srcObject = stream;
+                
+                // Set video size according to aspect ratio
+                cameraView.onloadedmetadata = () => {
+                    cameraView.style.width = '100%';
+                    cameraView.style.height = 'auto';
+                };
+            } catch (err) {
+                console.error("Error starting camera:", err);
+                throw err;
             }
         }
 
@@ -1395,6 +1381,22 @@
             }, 300);
         }
 
+        async function switchCamera() {
+            if (videoDevices.length < 2) {
+                alert("Only one camera available");
+                return;
+            }
+            
+            const currentIndex = videoDevices.findIndex(device => device.deviceId === currentDeviceId);
+            const nextIndex = (currentIndex + 1) % videoDevices.length;
+            currentDeviceId = videoDevices[nextIndex].deviceId;
+            
+            // Update dropdown selection
+            document.getElementById('cameraSelect').value = currentDeviceId;
+            
+            await startCamera(currentDeviceId);
+        }
+
         function updateThumbnails() {
             const previewSidebar = document.getElementById('previewSidebar');
             previewSidebar.innerHTML = '';
@@ -1438,10 +1440,81 @@
             // Update the background
             document.getElementById('capture-container').style.background = selectedBackground;
 
-            // Apply current overlay if exists
-            if (currentOverlay && currentOverlay !== 'none') {
-                applyOverlay(currentOverlay);
+            // Apply current style if exists
+            if (currentStyle && currentStyle !== 'none') {
+                applyStyle(currentStyle);
             }
+
+            // Apply frame if selected
+            if (currentFrame && currentFrame !== 'none') {
+                applyFrame(currentFrame);
+            }
+        }
+
+        // Apply style (combined layout and overlay)
+        function applyStyle(styleUrl) {
+            // Remove existing style if any
+            const existingStyle = document.querySelector('.style-overlay');
+            if (existingStyle) {
+                existingStyle.remove();
+            }
+
+            // If 'none' is selected, just return
+            if (styleUrl === 'none') {
+                return;
+            }
+
+            // Create new style element
+            const styleOverlay = document.createElement('div');
+            styleOverlay.className = 'style-overlay';
+            styleOverlay.style.backgroundImage = `url('${styleUrl}')`;
+            styleOverlay.style.position = 'absolute';
+            styleOverlay.style.top = '0';
+            styleOverlay.style.left = '0';
+            styleOverlay.style.width = '100%';
+            styleOverlay.style.height = '100%';
+            styleOverlay.style.backgroundSize = 'contain';
+            styleOverlay.style.backgroundRepeat = 'no-repeat';
+            styleOverlay.style.backgroundPosition = 'center';
+            styleOverlay.style.pointerEvents = 'none';
+            styleOverlay.style.zIndex = '5';
+
+            // Add to the capture container
+            const stripTemplate = document.getElementById('stripTemplate');
+            stripTemplate.parentNode.insertBefore(styleOverlay, stripTemplate.nextSibling);
+        }
+
+        // Handle style upload
+        function uploadStyle(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.match('image.*')) {
+                alert('Please select an image file (JPEG, PNG, etc.)');
+                return;
+            }
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File is too large. Maximum size is 5MB.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                selectStyle(e.target.result, 'custom');
+
+                // Update the selected state
+                document.querySelectorAll('#styles-tab .background-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                input.closest('.background-option').classList.add('selected');
+            };
+            reader.onerror = function () {
+                alert('Error reading file. Please try again.');
+            };
+            reader.readAsDataURL(file);
         }
 
         // Apply filter to all photos
@@ -1639,64 +1712,45 @@
             document.removeEventListener('mouseup', stopStickerInteraction);
         }
 
-        // Apply overlay template
-        function applyOverlay(overlayUrl) {
-            // Remove existing overlay if any
-            const existingOverlay = document.querySelector('.overlay-template');
-            if (existingOverlay) {
-                existingOverlay.remove();
-            }
+        // Apply frame to photos
+        function applyFrame(frameType) {
+            const stripPhotos = document.querySelectorAll('.strip-photo');
 
-            // If 'none' is selected, just return
-            if (overlayUrl === 'none') {
-                currentOverlay = null;
-                return;
-            }
+            stripPhotos.forEach(photo => {
+                // Reset all frames
+                photo.style.border = 'none';
+                photo.style.borderBottom = 'none';
+                photo.style.boxShadow = 'none';
+                photo.style.borderRadius = '4px';
+                photo.style.padding = '0';
+                photo.style.background = 'transparent';
 
-            // Create new overlay element
-            const overlay = document.createElement('div');
-            overlay.className = 'overlay-template';
-            overlay.style.backgroundImage = `url('${overlayUrl}')`;
+                switch (frameType) {
+                    case 'none':
+                        // Default (no frame)
+                        break;
 
-            // Add to the capture container
-            const stripTemplate = document.getElementById('stripTemplate');
-            stripTemplate.parentNode.insertBefore(overlay, stripTemplate.nextSibling);
+                    case 'polaroid':
+                        photo.style.border = '10px solid white';
+                        photo.style.borderBottom = '30px solid white';
+                        photo.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+                        photo.style.background = 'white';
+                        break;
 
-            // Update current overlay
-            currentOverlay = overlayUrl;
-        }
+                    case 'vintage':
+                        photo.style.border = '5px solid #d4c9a8';
+                        photo.style.boxShadow = 'inset 0 0 15px rgba(0,0,0,0.1), 0 0 8px rgba(0,0,0,0.2)';
+                        photo.style.background = '#f0e8d0';
+                        break;
 
-        // Handle overlay upload
-        function uploadOverlay(input) {
-            const file = input.files[0];
-            if (!file) return;
-
-            // Validate file type
-            if (!file.type.match('image.*')) {
-                alert('Please select an image file (JPEG, PNG, etc.)');
-                return;
-            }
-
-            // Validate file size (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alert('File is too large. Maximum size is 5MB.');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                selectOverlay(e.target.result);
-
-                // Update the selected state
-                document.querySelectorAll('.overlay-option').forEach(option => {
-                    option.classList.remove('selected');
-                });
-                input.closest('.overlay-option').classList.add('selected');
-            };
-            reader.onerror = function () {
-                alert('Error reading file. Please try again.');
-            };
-            reader.readAsDataURL(file);
+                    case 'instax':
+                        photo.style.border = '8px solid #f0f0f0';
+                        photo.style.borderBottom = '15px solid #f0f0f0';
+                        photo.style.background = '#f8f8f8';
+                        photo.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                        break;
+                }
+            });
         }
 
         // Download photo
@@ -1916,99 +1970,6 @@
             ctx.putImageData(imageData, 0, 0);
         }
 
-        function applyFrame(frameType) {
-            const stripPhotos = document.querySelectorAll('.strip-photo');
-
-            stripPhotos.forEach(photo => {
-                // Reset all frames
-                photo.style.border = 'none';
-                photo.style.borderBottom = 'none';
-                photo.style.boxShadow = 'none';
-                photo.style.borderRadius = '4px';
-                photo.style.padding = '0';
-                photo.style.background = 'transparent';
-
-                switch (frameType) {
-                    case 'none':
-                        // Default (no frame)
-                        break;
-
-                    case 'polaroid':
-                        photo.style.border = '10px solid white';
-                        photo.style.borderBottom = '30px solid white';
-                        photo.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-                        photo.style.background = 'white';
-                        break;
-
-                    case 'vintage':
-                        photo.style.border = '5px solid #d4c9a8';
-                        photo.style.boxShadow = 'inset 0 0 15px rgba(0,0,0,0.1), 0 0 8px rgba(0,0,0,0.2)';
-                        photo.style.background = '#f0e8d0';
-                        break;
-
-                    case 'instax':
-                        photo.style.border = '8px solid #f0f0f0';
-                        photo.style.borderBottom = '15px solid #f0f0f0';
-                        photo.style.background = '#f8f8f8';
-                        photo.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-                        break;
-
-                    case 'wood':
-                        photo.style.border = '10px solid transparent';
-                        photo.style.padding = '5px';
-                        photo.style.background = 'linear-gradient(to right, #8B4513, #A0522D) border-box';
-                        photo.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
-                        break;
-
-                    case 'gold':
-                        photo.style.border = '8px solid transparent';
-                        photo.style.padding = '3px';
-                        photo.style.background = 'linear-gradient(135deg, #FFD700, #D4AF37) border-box';
-                        photo.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
-                        break;
-
-                    case 'neon':
-                        photo.style.border = '2px solid #00f2fe';
-                        photo.style.boxShadow = '0 0 10px #00f2fe, inset 0 0 5px #00f2fe';
-                        photo.style.background = 'black';
-                        break;
-
-                    case 'polaroid-color':
-                        photo.style.border = '10px solid #ff9a9e';
-                        photo.style.borderBottom = '30px solid #ff9a9e';
-                        photo.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-                        photo.style.background = '#ff9a9e';
-                        break;
-                }
-            });
-        }
-
-        async function switchCamera() {
-            try {
-                if (stream) {
-                    stream.getTracks().forEach(track => track.stop());
-                }
-
-                currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
-                const constraints = {
-                    video: {
-                        facingMode: currentFacingMode,
-                        width: { ideal: 1920 },
-                        height: { ideal: 1080 }
-                    },
-                    audio: false
-                };
-
-                stream = await navigator.mediaDevices.getUserMedia(constraints);
-                document.getElementById('cameraView').srcObject = stream;
-            } catch (err) {
-                console.error("Error switching camera:", err);
-                document.getElementById('cameraError').textContent =
-                    "Error switching camera. Your device might not have multiple cameras.";
-                document.getElementById('cameraError').style.display = 'block';
-            }
-        }
-
         function toggleFlash() {
             flashOn = !flashOn;
             document.getElementById('flashBtn').textContent =
@@ -2044,7 +2005,7 @@
                 // Access camera
                 stream = await navigator.mediaDevices.getUserMedia({
                     video: {
-                        facingMode: currentFacingMode,
+                        deviceId: currentDeviceId,
                         width: { ideal: 1920 },
                         height: { ideal: 1080 }
                     },
@@ -2179,44 +2140,6 @@
             }
         }
 
-        function uploadBackground(input) {
-            const file = input.files[0];
-            if (!file) return;
-
-            // Validasi ukuran file (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alert('File terlalu besar. Maksimal 5MB');
-                return;
-            }
-
-            // Validasi tipe file
-            if (!file.type.match('image.*')) {
-                alert('Hanya file gambar yang diperbolehkan');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                // Set background
-                const bgUrl = e.target.result;
-                selectedBackground = `url(${bgUrl})`;
-                const container = document.getElementById('capture-container');
-                container.style.backgroundImage = `url(${bgUrl})`;
-                container.style.backgroundSize = 'cover';
-                container.style.backgroundPosition = 'center';
-
-                // Update selected state
-                document.querySelectorAll('.background-option').forEach(option => {
-                    option.classList.remove('selected');
-                });
-                input.closest('.background-option').classList.add('selected');
-            };
-            reader.onerror = function () {
-                alert('Gagal membaca file');
-            };
-            reader.readAsDataURL(file);
-        }
-
         // Clean up when leaving the page
         window.addEventListener('beforeunload', () => {
             if (stream) {
@@ -2225,6 +2148,11 @@
             if (countdownInterval) {
                 clearInterval(countdownInterval);
             }
+        });
+
+        // Add event listener to detect device changes
+        navigator.mediaDevices.addEventListener('devicechange', async () => {
+            await getCameraDevices();
         });
     </script>
 </body>
