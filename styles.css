@@ -228,7 +228,7 @@
         }
 
         .strip-photo {
-            width: 170px;
+            width: 180px;
             background: white;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
             overflow: hidden;
