@@ -147,18 +147,16 @@
                 currentPhotoIndex = 0;
                 capturedPhotos = [];
 
-                // Access the camera
-                stream = await navigator.mediaDevices.getUserMedia({
-                    video: {
-                        facingMode: currentFacingMode,
-                        width: { ideal: 1920 },
-                        height: { ideal: 1080 }
-                    },
-                    audio: false
-                });
-
-                const cameraView = document.getElementById('cameraView');
-                cameraView.srcObject = stream;
+                // Dapatkan daftar perangkat kamera
+                await getCameraDevices();
+                
+                // Jika ada kamera yang terdeteksi, gunakan kamera pertama sebagai default
+                if (videoDevices.length > 0) {
+                    currentDeviceId = videoDevices[0].deviceId;
+                    await startCamera(currentDeviceId);
+                } else {
+                    throw new Error("No cameras found");
+                }
             } catch (err) {
                 console.error("Error accessing camera:", err);
                 document.getElementById('cameraError').textContent =
@@ -167,6 +165,74 @@
                 document.getElementById('captureBtn').disabled = true;
             }
         }
+
+        // Dapatkan daftar perangkat kamera yang tersedia
+        async function getCameraDevices() {
+            try {
+                // Pastikan izin kamera sudah diberikan
+                await navigator.mediaDevices.getUserMedia({ video: true });
+                
+                // Enumerate perangkat
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                videoDevices = devices.filter(device => device.kind === 'videoinput');
+                
+                // Update dropdown pemilihan kamera
+                const cameraSelect = document.getElementById('cameraSelect');
+                cameraSelect.innerHTML = '<option value="">Select Camera</option>';
+                
+                videoDevices.forEach(device => {
+                    const option = document.createElement('option');
+                    option.value = device.deviceId;
+                    option.text = device.label || `Camera ${cameraSelect.length}`;
+                    cameraSelect.appendChild(option);
+                });
+                
+                // Tambahkan event listener untuk perubahan kamera
+                cameraSelect.addEventListener('change', async () => {
+                    if (cameraSelect.value) {
+                        currentDeviceId = cameraSelect.value;
+                        await startCamera(currentDeviceId);
+                    }
+                });
+            } catch (err) {
+                console.error("Error enumerating devices:", err);
+                throw err;
+            }
+        }
+
+      // Mulai kamera dengan deviceId tertentu
+        async function startCamera(deviceId) {
+            // Hentikan stream yang sedang berjalan
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+
+            try {
+                const constraints = {
+                    video: {
+                        deviceId: { exact: deviceId },
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        frameRate: { ideal: 60 }
+                    },
+                    audio: false
+                };
+
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                const cameraView = document.getElementById('cameraView');
+                cameraView.srcObject = stream;
+                
+                // Setel ukuran video sesuai dengan aspect ratio
+                cameraView.onloadedmetadata = () => {
+                    cameraView.style.width = '100%';
+                    cameraView.style.height = 'auto';
+                };
+            } catch (err) {
+                console.error("Error starting camera:", err);
+                throw err;
+            }
+        }
+
 
         // Capture photo from camera
         function capturePhoto() {
@@ -282,6 +348,22 @@
             setTimeout(() => {
                 flashElement.classList.remove('flash-animation');
             }, 300);
+        }
+
+async function switchCamera() {
+            if (videoDevices.length < 2) {
+                alert("Only one camera available");
+                return;
+            }
+            
+            const currentIndex = videoDevices.findIndex(device => device.deviceId === currentDeviceId);
+            const nextIndex = (currentIndex + 1) % videoDevices.length;
+            currentDeviceId = videoDevices[nextIndex].deviceId;
+            
+            // Update dropdown selection
+            document.getElementById('cameraSelect').value = currentDeviceId;
+            
+            await startCamera(currentDeviceId);
         }
 
         function updateThumbnails() {
@@ -1114,4 +1196,9 @@
             if (countdownInterval) {
                 clearInterval(countdownInterval);
             }
+        });
+
+    // Tambahkan event listener untuk mendeteksi perubahan perangkat
+        navigator.mediaDevices.addEventListener('devicechange', async () => {
+            await getCameraDevices();
         });
