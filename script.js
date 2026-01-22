@@ -4,16 +4,13 @@ let selectedBackground = '';
 let countdownInterval = null;
 let currentPhotoIndex = 0;
 let capturedPhotos = [];
-let selectedTemplate = 'vertical-2';
-let photosNeeded = 2;
-let activeSticker = null;
-let isResizing = false;
-let startX, startY, startWidth, startHeight;
-let startStickerX, startStickerY;
+let selectedTemplate = 'vertical-4';
+let photosNeeded = 4;
 let selectedFilter = 'normal';
 let currentFacingMode = 'user';
 let flashOn = false;
 let gridOn = false;
+let mirrorOn = false;
 let flashElement = null;
 let isCountingDown = false;
 let currentOverlay = 'none';
@@ -22,16 +19,6 @@ let currentDeviceId = null;
 
 // Template configurations
 const templateConfig = {
-    'vertical-2': {
-        photosNeeded: 2,
-        containerClass: 'vertical-2',
-        photoClass: 'vertical-photo'
-    },
-    'vertical-3': {
-        photosNeeded: 3,
-        containerClass: 'vertical-3',
-        photoClass: 'vertical-photo'
-    },
     'vertical-4': {
         photosNeeded: 4,
         containerClass: 'vertical-4',
@@ -311,6 +298,14 @@ function takePhoto() {
     // Draw the full video frame
     context.drawImage(cameraView, 0, 0, canvas.width, canvas.height);
 
+    // Apply mirror effect to captured photo if mirror is enabled
+    if (mirrorOn) {
+        context.save();
+        context.scale(-1, 1);
+        context.drawImage(canvas, -canvas.width, 0);
+        context.restore();
+    }
+
     // Create a square crop from the center
     const size = Math.min(videoWidth, videoHeight);
     const offsetX = (videoWidth - size) / 2;
@@ -417,6 +412,10 @@ function updateThumbnails() {
 // Create the final photo strip
 function createFinalStrip() {
     const stripTemplate = document.getElementById('stripTemplate');
+
+    // Preserve existing stickers
+    const existingStickers = Array.from(stripTemplate.querySelectorAll('.sticker'));
+
     stripTemplate.innerHTML = '';
 
     // Set template class
@@ -440,6 +439,11 @@ function createFinalStrip() {
         photoDiv.appendChild(img);
         stripTemplate.appendChild(photoDiv);
     }
+
+    // Re-add preserved stickers
+    existingStickers.forEach(sticker => {
+        stripTemplate.appendChild(sticker);
+    });
 
     // Update the background
     document.getElementById('capture-container').style.background = selectedBackground;
@@ -537,112 +541,305 @@ function uploadBackground(input) {
     reader.readAsDataURL(file);
 }
 
-// Add sticker to photo strip
-function addSticker(stickerUrl) {
+// Sticker Management System
+let activeSticker = null;
+let isDragging = false;
+let isResizing = false;
+let startX = 0;
+let startY = 0;
+let startStickerX = 0;
+let startStickerY = 0;
+let startWidth = 0;
+let startHeight = 0;
+
+// Initialize sticker system
+document.addEventListener('DOMContentLoaded', function() {
+    initStickerSystem();
+});
+
+function initStickerSystem() {
+    // Add category switching functionality
+    const categories = document.querySelectorAll('.sticker-category');
+    categories.forEach(category => {
+        category.addEventListener('click', function() {
+            switchStickerCategory(this.dataset.category);
+        });
+    });
+}
+
+function switchStickerCategory(category) {
+    // Update active category button
+    document.querySelectorAll('.sticker-category').forEach(cat => {
+        cat.classList.remove('active');
+    });
+    document.querySelector(`[data-category="${category}"]`).classList.add('active');
+
+    // Show corresponding content
+    document.querySelectorAll('.sticker-category-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.querySelector(`[data-category="${category}"]`).classList.add('active');
+}
+
+// Add emoji sticker to photo strip
+function addEmojiSticker(emoji) {
     const stripTemplate = document.getElementById('stripTemplate');
-    const sticker = document.createElement('div');
-    sticker.className = 'sticker';
-    sticker.innerHTML = `
-        <img src="${stickerUrl}" alt="Sticker">
-        <div class="sticker-controls">
-            <div class="sticker-delete">×</div>
-        </div>
-        <div class="sticker-resize"></div>
-    `;
-
-    // Position sticker randomly within the container
-    const containerRect = stripTemplate.getBoundingClientRect();
-    const stickerSize = 80 + Math.random() * 40;
-
-    sticker.style.width = `${stickerSize}px`;
-    sticker.style.left = `${Math.random() * (containerRect.width - stickerSize)}px`;
-    sticker.style.top = `${Math.random() * (containerRect.height - stickerSize)}px`;
-
+    const sticker = createStickerElement(emoji, 'emoji');
     stripTemplate.appendChild(sticker);
-
-    // Add event listeners for the new sticker
     setupStickerInteractions(sticker);
 }
 
-// Setup sticker interactions (drag and resize)
+// Add image sticker to photo strip
+function addImageSticker(imageUrl) {
+    const stripTemplate = document.getElementById('stripTemplate');
+    const sticker = createStickerElement(imageUrl, 'image');
+    stripTemplate.appendChild(sticker);
+    setupStickerInteractions(sticker);
+}
+
+// Create sticker element
+function createStickerElement(content, type) {
+    const sticker = document.createElement('div');
+    sticker.className = 'sticker sticker-' + type;
+
+    // Create content based on type
+    if (type === 'emoji') {
+        sticker.innerHTML = `
+            <div class="sticker-content">${content}</div>
+            <div class="sticker-controls">
+                <button class="sticker-delete" title="Delete sticker">×</button>
+            </div>
+            <div class="sticker-resize-handle" title="Resize sticker"></div>
+        `;
+    } else {
+        sticker.innerHTML = `
+            <div class="sticker-content">
+                <img src="${content}" alt="Sticker" onerror="this.style.display='none'; this.parentElement.innerHTML='${getFallbackEmoji(content)}'">
+            </div>
+            <div class="sticker-controls">
+                <button class="sticker-delete" title="Delete sticker">×</button>
+            </div>
+            <div class="sticker-resize-handle" title="Resize sticker"></div>
+        `;
+    }
+
+    // Position sticker randomly within the container
+    const containerRect = document.getElementById('stripTemplate').getBoundingClientRect();
+    const baseSize = type === 'emoji' ? 60 : 80;
+    const randomSize = baseSize + Math.random() * 40;
+
+    sticker.style.width = `${randomSize}px`;
+    sticker.style.height = type === 'emoji' ? `${randomSize}px` : 'auto';
+    sticker.style.left = `${Math.random() * (containerRect.width - randomSize)}px`;
+    sticker.style.top = `${Math.random() * (containerRect.height - randomSize)}px`;
+
+    return sticker;
+}
+
+// Get fallback emoji for image stickers
+function getFallbackEmoji(imageUrl) {
+    const fallbacks = {
+        'sticker/Sticker.png': '✨',
+        'sticker/bear.png': '🧸',
+        'sticker/love.png': '💖',
+        'sticker/cat.png': '🐱',
+        'sticker/unicorn.png': '🦄'
+    };
+    return fallbacks[imageUrl] || '🎨';
+}
+
+// Setup sticker interactions
 function setupStickerInteractions(sticker) {
     const deleteBtn = sticker.querySelector('.sticker-delete');
-    const resizeHandle = sticker.querySelector('.sticker-resize');
+    const resizeHandle = sticker.querySelector('.sticker-resize-handle');
 
-    // Delete sticker
-    deleteBtn.addEventListener('click', (e) => {
+    // Delete functionality
+    deleteBtn.addEventListener('click', function(e) {
         e.stopPropagation();
         sticker.remove();
     });
 
-    // Drag sticker
-    sticker.addEventListener('mousedown', (e) => {
-        if (e.target === resizeHandle) return;
-
-        activeSticker = sticker;
-        const rect = sticker.getBoundingClientRect();
-        startStickerX = e.clientX - rect.left;
-        startStickerY = e.clientY - rect.top;
-
-        document.addEventListener('mousemove', moveSticker);
-        document.addEventListener('mouseup', stopStickerInteraction);
+    deleteBtn.addEventListener('touchstart', function(e) {
+        e.stopPropagation();
+        sticker.remove();
     });
 
-    // Resize sticker
-    resizeHandle.addEventListener('mousedown', (e) => {
-        e.stopPropagation();
-        isResizing = true;
-        activeSticker = sticker;
-        const rect = sticker.getBoundingClientRect();
-        startX = e.clientX;
-        startY = e.clientY;
-        startWidth = rect.width;
-        startHeight = rect.height;
+    // Drag functionality - Mouse
+    sticker.addEventListener('mousedown', function(e) {
+        if (e.target === resizeHandle || e.target === deleteBtn || e.target.closest('.sticker-controls')) return;
+        e.preventDefault();
+        startDrag(e.clientX, e.clientY, sticker);
+    });
 
-        document.addEventListener('mousemove', resizeSticker);
-        document.addEventListener('mouseup', stopStickerInteraction);
+    // Drag functionality - Touch
+    sticker.addEventListener('touchstart', function(e) {
+        if (e.target === resizeHandle || e.target === deleteBtn || e.target.closest('.sticker-controls')) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        startDrag(touch.clientX, touch.clientY, sticker);
+    });
+
+    // Resize functionality - Mouse
+    resizeHandle.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        startResize(e.clientX, e.clientY, sticker);
+    });
+
+    // Resize functionality - Touch
+    resizeHandle.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const touch = e.touches[0];
+        startResize(touch.clientX, touch.clientY, sticker);
+    });
+
+    // Show controls on hover/touch
+    sticker.addEventListener('mouseenter', function() {
+        sticker.classList.add('sticker-active');
+    });
+
+    sticker.addEventListener('mouseleave', function() {
+        if (!isDragging && !isResizing) {
+            sticker.classList.remove('sticker-active');
+        }
+    });
+
+    sticker.addEventListener('touchstart', function() {
+        sticker.classList.add('sticker-active');
     });
 }
 
-// Move sticker
-function moveSticker(e) {
-    if (!activeSticker) return;
+// Start dragging
+function startDrag(clientX, clientY, sticker) {
+    activeSticker = sticker;
+    isDragging = true;
+    activeSticker.classList.add('sticker-active');
+
+    const rect = sticker.getBoundingClientRect();
+    startStickerX = clientX - rect.left;
+    startStickerY = clientY - rect.top;
+
+    // Add global event listeners
+    document.addEventListener('mousemove', dragSticker);
+    document.addEventListener('mouseup', stopDrag);
+    document.addEventListener('touchmove', dragStickerTouch, { passive: false });
+    document.addEventListener('touchend', stopDrag);
+}
+
+// Start resizing
+function startResize(clientX, clientY, sticker) {
+    activeSticker = sticker;
+    isResizing = true;
+    activeSticker.classList.add('sticker-active');
+
+    const rect = sticker.getBoundingClientRect();
+    startX = clientX;
+    startY = clientY;
+    startWidth = rect.width;
+    startHeight = rect.height;
+
+    // Add global event listeners
+    document.addEventListener('mousemove', resizeSticker);
+    document.addEventListener('mouseup', stopResize);
+    document.addEventListener('touchmove', resizeStickerTouch, { passive: false });
+    document.addEventListener('touchend', stopResize);
+}
+
+// Drag sticker - Mouse
+function dragSticker(e) {
+    if (!activeSticker || !isDragging) return;
 
     const container = document.getElementById('stripTemplate');
     const containerRect = container.getBoundingClientRect();
-    const stickerRect = activeSticker.getBoundingClientRect();
 
     let newLeft = e.clientX - containerRect.left - startStickerX;
     let newTop = e.clientY - containerRect.top - startStickerY;
 
-    // Constrain to container bounds
-    newLeft = Math.max(0, Math.min(newLeft, containerRect.width - stickerRect.width));
-    newTop = Math.max(0, Math.min(newTop, containerRect.height - stickerRect.height));
-
+    // Allow stickers to be positioned anywhere in the preview area
+    // Remove strict constraints to allow more flexibility
     activeSticker.style.left = `${newLeft}px`;
     activeSticker.style.top = `${newTop}px`;
 }
 
-// Resize sticker
+// Drag sticker - Touch
+function dragStickerTouch(e) {
+    if (!activeSticker || !isDragging) return;
+    e.preventDefault();
+
+    const container = document.getElementById('stripTemplate');
+    const containerRect = container.getBoundingClientRect();
+    const touch = e.touches[0];
+
+    let newLeft = touch.clientX - containerRect.left - startStickerX;
+    let newTop = touch.clientY - containerRect.top - startStickerY;
+
+    // Allow stickers to be positioned anywhere in the preview area
+    // Remove strict constraints to allow more flexibility
+    activeSticker.style.left = `${newLeft}px`;
+    activeSticker.style.top = `${newTop}px`;
+}
+
+// Resize sticker - Mouse
 function resizeSticker(e) {
     if (!activeSticker || !isResizing) return;
 
-    const width = startWidth + (e.clientX - startX);
-    const height = startHeight + (e.clientY - startY);
+    const newWidth = startWidth + (e.clientX - startX);
+    const newHeight = startHeight + (e.clientY - startY);
 
     // Minimum size constraint
-    if (width > 50 && height > 50) {
-        activeSticker.style.width = `${width}px`;
+    const minSize = 30;
+    if (newWidth > minSize && newHeight > minSize) {
+        activeSticker.style.width = `${newWidth}px`;
+        activeSticker.style.height = `${newHeight}px`;
     }
 }
 
-// Stop sticker interaction
-function stopStickerInteraction() {
+// Resize sticker - Touch
+function resizeStickerTouch(e) {
+    if (!activeSticker || !isResizing) return;
+    e.preventDefault();
+
+    const touch = e.touches[0];
+    const newWidth = startWidth + (touch.clientX - startX);
+    const newHeight = startHeight + (touch.clientY - startY);
+
+    // Minimum size constraint
+    const minSize = 30;
+    if (newWidth > minSize && newHeight > minSize) {
+        activeSticker.style.width = `${newWidth}px`;
+        activeSticker.style.height = `${newHeight}px`;
+    }
+}
+
+// Stop dragging
+function stopDrag() {
+    if (activeSticker) {
+        activeSticker.classList.remove('sticker-active');
+    }
+    activeSticker = null;
+    isDragging = false;
+
+    // Remove event listeners
+    document.removeEventListener('mousemove', dragSticker);
+    document.removeEventListener('mouseup', stopDrag);
+    document.removeEventListener('touchmove', dragStickerTouch);
+    document.removeEventListener('touchend', stopDrag);
+}
+
+// Stop resizing
+function stopResize() {
+    if (activeSticker) {
+        activeSticker.classList.remove('sticker-active');
+    }
     activeSticker = null;
     isResizing = false;
-    document.removeEventListener('mousemove', moveSticker);
+
+    // Remove event listeners
     document.removeEventListener('mousemove', resizeSticker);
-    document.removeEventListener('mouseup', stopStickerInteraction);
+    document.removeEventListener('mouseup', stopResize);
+    document.removeEventListener('touchmove', resizeStickerTouch);
+    document.removeEventListener('touchend', stopResize);
 }
 
 // Apply overlay template
@@ -991,6 +1188,22 @@ function toggleGrid() {
         <span>Grid: ${gridOn ? 'On' : 'Off'}</span>
     `;
     document.getElementById('cameraGrid').style.display = gridOn ? 'block' : 'none';
+}
+
+function toggleMirror() {
+    mirrorOn = !mirrorOn;
+    const cameraView = document.getElementById('cameraView');
+    if (mirrorOn) {
+        cameraView.classList.add('mirror');
+        cameraView.classList.remove('no-mirror');
+    } else {
+        cameraView.classList.add('no-mirror');
+        cameraView.classList.remove('mirror');
+    }
+    document.getElementById('mirrorBtn').innerHTML = `
+        <span class="control-icon">🪞</span>
+        <span>Mirror: ${mirrorOn ? 'On' : 'Off'}</span>
+    `;
 }
 
 function returnToCamera() {

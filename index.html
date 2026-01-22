@@ -115,23 +115,8 @@
 
         <div id="templates-tab" class="tab-content active">
             <div class="template-options">
-                <div class="template-option vertical-2 selected" onclick="selectTemplate(this, 'vertical-2')">
+                <div class="template-option vertical-4 selected" onclick="selectTemplate(this, 'vertical-4')">
                     <div class="template-badge">Popular</div>
-                    <h3 class="template-title">Vertical 2</h3>
-                    <div class="template-preview">
-                        <div class="template-preview-cell cell-1"></div>
-                        <div class="template-preview-cell cell-2"></div>
-                    </div>
-                </div>
-                <div class="template-option vertical-3" onclick="selectTemplate(this, 'vertical-3')">
-                    <h3 class="template-title">Vertical 3</h3>
-                    <div class="template-preview">
-                        <div class="template-preview-cell cell-1"></div>
-                        <div class="template-preview-cell cell-2"></div>
-                        <div class="template-preview-cell cell-3"></div>
-                    </div>
-                </div>
-                <div class="template-option vertical-4" onclick="selectTemplate(this, 'vertical-4')">
                     <h3 class="template-title">Vertical 4</h3>
                     <div class="template-preview">
                         <div class="template-preview-cell cell-1"></div>
@@ -267,6 +252,10 @@
                 <span class="control-icon">🔄</span>
                 <span>Switch Camera</span>
             </button>
+            <button class="control-btn" onclick="toggleMirror()" id="mirrorBtn">
+                <span class="control-icon">🪞</span>
+                <span>Mirror: Off</span>
+            </button>
             <button class="control-btn" onclick="toggleFlash()" id="flashBtn">
                 <span class="control-icon">⚡</span>
                 <span>Flash: Off</span>
@@ -401,30 +390,152 @@
             </div>
 
             <div id="sticker-tab" class="tab-content">
-                <div class="options-grid">
-                    <div class="sticker-option" onclick="addSticker('sticker/Sticker.png')">
-                        <div class="sticker-preview sticker-1">
-                            <span class="sticker-emoji">💫</span>
-                        </div>
-                        <div class="option-name">Sparkle</div>
+                <div class="sticker-instructions">
+                    <p>Click any sticker below to add it to your photo strip. You can drag, resize, and delete stickers once they're added.</p>
+                </div>
+                <div class="sticker-categories">
+                    <div class="sticker-category active" data-category="emojis">
+                        <span class="category-icon">😊</span>
+                        <span>Emojis</span>
                     </div>
-                    <div class="sticker-option" onclick="addSticker('sticker/bear.png')">
-                        <div class="sticker-preview sticker-2">
-                            <span class="sticker-emoji">🧸</span>
-                        </div>
-                        <div class="option-name">Bear</div>
+                    <div class="sticker-category" data-category="decorations">
+                        <span class="category-icon">✨</span>
+                        <span>Decorations</span>
                     </div>
-                    <div class="sticker-option" onclick="addSticker('sticker/love.png')">
-                        <div class="sticker-preview sticker-3">
-                            <span class="sticker-emoji">💖</span>
-                        </div>
-                        <div class="option-name">Love</div>
+                    <div class="sticker-category" data-category="animals">
+                        <span class="category-icon">🐾</span>
+                        <span>Animals</span>
                     </div>
-                    <div class="sticker-option" onclick="addSticker('sticker/cat.png')">
-                        <div class="sticker-preview sticker-4">
-                            <span class="sticker-emoji">🐱</span>
+                    <div class="sticker-category" data-category="hearts">
+                        <span class="category-icon">💝</span>
+                        <span>Hearts</span>
+                    </div>
+                </div>
+                <div class="sticker-grid">
+                    <!-- Emoji Stickers -->
+                    <div class="sticker-category-content active" data-category="emojis">
+                        <div class="sticker-item" onclick="addEmojiSticker('💫')">
+                            <div class="sticker-preview">💫</div>
+                            <div class="sticker-name">Sparkle</div>
                         </div>
-                        <div class="option-name">Cat</div>
+                        <div class="sticker-item" onclick="addEmojiSticker('🌟')">
+                            <div class="sticker-preview">🌟</div>
+                            <div class="sticker-name">Star</div>
+                        </div>
+                        <div class="sticker-item" onclick="addEmojiSticker('💖')">
+                            <div class="sticker-preview">💖</div>
+                            <div class="sticker-name">Heart</div>
+                        </div>
+                        <div class="sticker-item" onclick="addEmojiSticker('🎉')">
+                            <div class="sticker-preview">🎉</div>
+                            <div class="sticker-name">Party</div>
+                        </div>
+                        <div class="sticker-item" onclick="addEmojiSticker('🌈')">
+                            <div class="sticker-preview">🌈</div>
+                            <div class="sticker-name">Rainbow</div>
+                        </div>
+                        <div class="sticker-item" onclick="addEmojiSticker('🎈')">
+                            <div class="sticker-preview">🎈</div>
+                            <div class="sticker-name">Balloon</div>
+                        </div>
+                        <div class="sticker-item" onclick="addEmojiSticker('🌸')">
+                            <div class="sticker-preview">🌸</div>
+                            <div class="sticker-name">Flower</div>
+                        </div>
+                        <div class="sticker-item" onclick="addEmojiSticker('⭐')">
+                            <div class="sticker-preview">⭐</div>
+                            <div class="sticker-name">Star</div>
+                        </div>
+                    </div>
+
+                    <!-- Decoration Stickers -->
+                    <div class="sticker-category-content" data-category="decorations">
+                        <div class="sticker-item" onclick="addImageSticker('sticker/Sticker.png')">
+                            <div class="sticker-preview">
+                                <img src="sticker/Sticker.png" alt="Sparkle" onerror="this.style.display='none'; this.parentElement.innerHTML='✨'">
+                            </div>
+                            <div class="sticker-name">Sparkle</div>
+                        </div>
+                        <div class="sticker-item" onclick="addImageSticker('sticker/bear.png')">
+                            <div class="sticker-preview">
+                                <img src="sticker/bear.png" alt="Bear" onerror="this.style.display='none'; this.parentElement.innerHTML='🧸'">
+                            </div>
+                            <div class="sticker-name">Bear</div>
+                        </div>
+                        <div class="sticker-item" onclick="addImageSticker('sticker/love.png')">
+                            <div class="sticker-preview">
+                                <img src="sticker/love.png" alt="Love" onerror="this.style.display='none'; this.parentElement.innerHTML='💖'">
+                            </div>
+                            <div class="sticker-name">Love</div>
+                        </div>
+                        <div class="sticker-item" onclick="addImageSticker('sticker/cat.png')">
+                            <div class="sticker-preview">
+                                <img src="sticker/cat.png" alt="Cat" onerror="this.style.display='none'; this.parentElement.innerHTML='🐱'">
+                            </div>
+                            <div class="sticker-name">Cat</div>
+                        </div>
+                        <div class="sticker-item" onclick="addImageSticker('sticker/unicorn.png')">
+                            <div class="sticker-preview">
+                                <img src="sticker/unicorn.png" alt="Unicorn" onerror="this.style.display='none'; this.parentElement.innerHTML='🦄'">
+                            </div>
+                            <div class="sticker-name">Unicorn</div>
+                        </div>
+                    </div>
+
+                    <!-- Animal Stickers -->
+                    <div class="sticker-category-content" data-category="animals">
+                        <div class="sticker-item" onclick="addEmojiSticker('🐱')">
+                            <div class="sticker-preview">🐱</div>
+                            <div class="sticker-name">Cat</div>
+                        </div>
+                        <div class="sticker-item" onclick="addEmojiSticker('🐶')">
+                            <div class="sticker-preview">🐶</div>
+                            <div class="sticker-name">Dog</div>
+                        </div>
+                        <div class="sticker-item" onclick="addEmojiSticker('🐰')">
+                            <div class="sticker-preview">🐰</div>
+                            <div class="sticker-name">Rabbit</div>
+                        </div>
+                        <div class="sticker-item" onclick="addEmojiSticker('🦊')">
+                            <div class="sticker-preview">🦊</div>
+                            <div class="sticker-name">Fox</div>
+                        </div>
+                        <div class="sticker-item" onclick="addEmojiSticker('🐼')">
+                            <div class="sticker-preview">🐼</div>
+                            <div class="sticker-name">Panda</div>
+                        </div>
+                        <div class="sticker-item" onclick="addEmojiSticker('🦁')">
+                            <div class="sticker-preview">🦁</div>
+                            <div class="sticker-name">Lion</div>
+                        </div>
+                    </div>
+
+                    <!-- Heart Stickers -->
+                    <div class="sticker-category-content" data-category="hearts">
+                        <div class="sticker-item" onclick="addEmojiSticker('💖')">
+                            <div class="sticker-preview">💖</div>
+                            <div class="sticker-name">Heart</div>
+                        </div>
+                        <div class="sticker-item" onclick="addEmojiSticker('💕')">
+                            <div class="sticker-preview">💕</div>
+                            <div class="sticker-name">Two Hearts</div>
+                        </div>
+                        <div class="sticker-item" onclick="addEmojiSticker('💗')">
+                            <div class="sticker-preview">💗</div>
+                            <div class="sticker-name">Growing Heart</div>
+                        </div>
+                        <div class="sticker-item" onclick="addEmojiSticker('💓')">
+                            <div class="sticker-preview">💓</div>
+                            <div class="sticker-name">Beating Heart</div>
+                        </div>
+                        <div class="sticker-item" onclick="addEmojiSticker('💘')">
+                            <div class="sticker-preview">💘</div>
+                            <div class="sticker-name">Heart Arrow</div>
+                        </div>
+                        <div class="sticker-item" onclick="addEmojiSticker('💝')">
+                            <div class="sticker-preview">💝</div>
+                            <div class="sticker-name">Gift Heart</div>
+                        </div>
                     </div>
                 </div>
             </div>
