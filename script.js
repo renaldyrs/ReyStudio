@@ -1219,3 +1219,48 @@ window.addEventListener('beforeunload', () => {
 navigator.mediaDevices.addEventListener('devicechange', async () => {
     await getCameraDevices();
 });
+
+/* Tambahkan juga JavaScript untuk toggle mode */
+// Deteksi perangkat
+const isMobileDevice = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+           window.innerWidth <= 768;
+};
+
+// Toggle mode
+let currentMode = isMobileDevice() ? 'mobile' : 'web';
+
+function setMode(mode) {
+    currentMode = mode;
+    document.body.classList.remove('mode-web', 'mode-mobile');
+    document.body.classList.add(`mode-${mode}`);
+    
+    // Simpan preferensi pengguna
+    localStorage.setItem('preferredMode', mode);
+    
+    // Update toggle button
+    document.querySelectorAll('.mode-toggle-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.mode === mode) {
+            btn.classList.add('active');
+        }
+    });
+}
+
+// Inisialisasi mode
+function initMode() {
+    const savedMode = localStorage.getItem('preferredMode');
+    const initialMode = savedMode || (isMobileDevice() ? 'mobile' : 'web');
+    setMode(initialMode);
+    
+    // Tambahkan event listener untuk toggle buttons
+    document.querySelectorAll('.mode-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            setMode(btn.dataset.mode);
+        });
+    });
+}
+
+// Panggil saat DOM siap
+document.addEventListener('DOMContentLoaded', initMode);
+
