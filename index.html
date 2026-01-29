@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     <title>Rey Studio | Photo Strip Creator</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,21 +14,29 @@
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    
+    <style>
+        #capture-container {
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            -moz-transform: translateZ(0);
+            -ms-transform: translateZ(0);
+            -o-transform: translateZ(0);
+        }
+        
+        .strip-photo {
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+        }
+        
+        .sticker {
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+        }
+    </style>
 </head>
 
 <body>
-
-/* Tambahkan HTML untuk toggle buttons di dalam body (sebelum screen pertama) */
-<div class="mode-toggle-container">
-    <button class="mode-toggle-btn active" data-mode="web">
-        <span class="mode-icon">💻</span>
-        <span>Web Mode</span>
-    </button>
-    <button class="mode-toggle-btn" data-mode="mobile">
-        <span class="mode-icon">📱</span>
-        <span>Mobile Mode</span>
-    </button>
-</div>
     <!-- Screen 1: Welcome -->
     <div class="screen active" id="screen1">
         <div class="welcome-container">
@@ -102,16 +110,6 @@
             <p class="screen-description">Select a layout and overlay style for your photo strip</p>
         </div>
 
-        <div class="tab-nav">
-            <button class="tab-btn active" onclick="openTemplateTab('templates-tab')">
-                <span class="tab-icon">📐</span>
-                <span>Templates</span>
-            </button>
-            <button class="tab-btn" onclick="openTemplateTab('overlays-tab')">
-                <span class="tab-icon">🎨</span>
-                <span>Overlays</span>
-            </button>
-        </div>
 
         <div id="templates-tab" class="tab-content active">
             <div class="template-options">
@@ -140,54 +138,7 @@
             </div>
         </div>
 
-        <div id="overlays-tab" class="tab-content">
-            <div class="overlay-options">
-                <div class="overlay-option selected" onclick="selectOverlay('none')">
-                    <div class="overlay-preview clean-preview">
-                        <div class="preview-content">
-                            <span class="preview-icon">✕</span>
-                            <span class="preview-label">No Overlay</span>
-                        </div>
-                    </div>
-                    <div class="overlay-name">Clean</div>
-                </div>
-                <div class="overlay-option" onclick="selectOverlay('overlay/overlay1.png')">
-                    <div class="overlay-preview floral-preview">
-                        <div class="preview-content">
-                            <span class="preview-icon">🌸</span>
-                        </div>
-                    </div>
-                    <div class="overlay-name">Floral Frame</div>
-                </div>
-                <div class="overlay-option" onclick="selectOverlay('overlay/overlay2.png')">
-                    <div class="overlay-preview polaroid-preview">
-                        <div class="preview-content">
-                            <span class="preview-icon">📸</span>
-                        </div>
-                    </div>
-                    <div class="overlay-name">Polaroid</div>
-                </div>
-                <div class="overlay-option" onclick="selectOverlay('overlay/overlay3.png')">
-                    <div class="overlay-preview vintage-preview">
-                        <div class="preview-content">
-                            <span class="preview-icon">🕰️</span>
-                        </div>
-                    </div>
-                    <div class="overlay-name">Vintage</div>
-                </div>
-                <div class="overlay-option upload-option" onclick="document.getElementById('overlayUpload').click()">
-                    <div class="overlay-preview custom-preview">
-                        <div class="preview-content">
-                            <span class="preview-icon">📁</span>
-                            <span class="preview-label">Custom</span>
-                        </div>
-                    </div>
-                    <div class="overlay-name">Upload</div>
-                    <input type="file" id="overlayUpload" accept="image/*" style="display: none;" onchange="uploadOverlay(this)">
-                </div>
-            </div>
-        </div>
-
+        
         <div class="action-buttons">
             <button class="secondary-button" onclick="showScreen('screen2')">
                 <span class="button-text">Back</span>
@@ -269,7 +220,7 @@
                 <span>Retake Last</span>
             </button>
         </div>
-        
+         
         <div class="action-buttons">
             <button class="secondary-button" onclick="showScreen('screen3-template')">
                 <span class="button-text">Back</span>
@@ -289,13 +240,13 @@
         </div>
 
         <div class="preview-container">
-            <div id="capture-container" class="strip-preview">
+            <div id="capture-container" class="strip-preview" style="transform: translateZ(0);">
                 <div class="strip-template" id="stripTemplate">
                     <!-- Photos will be inserted here -->
                 </div>
                 <div class="photo-footer">
                     <div class="footer-title">
-                        <img id="footerLogo" src="logo/logo.png" alt="Rey Studio" class="footer-logo">
+                        <img id="footerLogo" src="logo/logo.png" alt="Rey Studio" class="footer-logo" crossorigin="anonymous">
                     </div>
                     <div class="footer-subtitle">Created with Rey Studio</div>
                 </div>
@@ -325,44 +276,44 @@
 
             <div id="background-tab" class="tab-content active">
                 <div class="options-grid">
-                    <!-- Solid Colors -->
-                    <div class="background-option color-option" onclick="selectBackground(this, '#FF9AA2')">
+                    <!-- New Color Options -->
+                    <div class="background-option color-option selected" onclick="selectBackground(this, '#DDD0C8')">
                         <div class="background-preview color-1"></div>
-                        <div class="option-name">Blush Pink</div>
+                        <div class="option-name">Cream</div>
                     </div>
-                    <div class="background-option color-option" onclick="selectBackground(this, '#FFB7B2')">
-                        <div class="background-preview color-2"></div>
-                        <div class="option-name">Coral</div>
+                    <div class="background-option color-option" onclick="selectBackground(this, '#323232')">
+                        <div class="background-preview" style="background: #323232;"></div>
+                        <div class="option-name">Dark Gray</div>
                     </div>
-                    <div class="background-option color-option" onclick="selectBackground(this, '#FFDAC1')">
-                        <div class="background-preview color-3"></div>
-                        <div class="option-name">Peach</div>
+                    <div class="background-option color-option" onclick="selectBackground(this, '#F0E8E2')">
+                        <div class="background-preview" style="background: #F0E8E2;"></div>
+                        <div class="option-name">Light Cream</div>
                     </div>
-                    <div class="background-option color-option" onclick="selectBackground(this, '#E2F0CB')">
-                        <div class="background-preview color-4"></div>
-                        <div class="option-name">Mint</div>
+                    <div class="background-option color-option" onclick="selectBackground(this, '#4A4A4A')">
+                        <div class="background-preview" style="background: #4A4A4A;"></div>
+                        <div class="option-name">Medium Gray</div>
                     </div>
-                    <div class="background-option color-option" onclick="selectBackground(this, '#B5EAD7')">
-                        <div class="background-preview color-5"></div>
-                        <div class="option-name">Aqua</div>
+                    <div class="background-option color-option" onclick="selectBackground(this, '#FFFFFF')">
+                        <div class="background-preview" style="background: #FFFFFF; border: 1px solid #DDD0C8;"></div>
+                        <div class="option-name">White</div>
                     </div>
 
-                    <!-- Gradients -->
-                    <div class="background-option gradient-option" onclick="selectBackground(this, 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)')">
+                    <!-- New Gradients -->
+                    <div class="background-option gradient-option" onclick="selectBackground(this, 'linear-gradient(135deg, #323232 0%, #4A4A4A 100%)')">
                         <div class="background-preview gradient-1"></div>
-                        <div class="option-name">Purple Dream</div>
+                        <div class="option-name">Gray Gradient</div>
                     </div>
-                    <div class="background-option gradient-option" onclick="selectBackground(this, 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)')">
+                    <div class="background-option gradient-option" onclick="selectBackground(this, 'linear-gradient(135deg, #DDD0C8 0%, #F0E8E2 100%)')">
                         <div class="background-preview gradient-2"></div>
-                        <div class="option-name">Sunset</div>
+                        <div class="option-name">Cream Gradient</div>
                     </div>
-                    <div class="background-option gradient-option" onclick="selectBackground(this, 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)')">
+                    <div class="background-option gradient-option" onclick="selectBackground(this, 'linear-gradient(135deg, #323232 0%, #DDD0C8 100%)')">
                         <div class="background-preview gradient-3"></div>
-                        <div class="option-name">Ocean</div>
+                        <div class="option-name">Dark to Cream</div>
                     </div>
-                    <div class="background-option gradient-option" onclick="selectBackground(this, 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)')">
+                    <div class="background-option gradient-option" onclick="selectBackground(this, 'linear-gradient(135deg, #DDD0C8 0%, #323232 100%)')">
                         <div class="background-preview gradient-4"></div>
-                        <div class="option-name">Emerald</div>
+                        <div class="option-name">Cream to Dark</div>
                     </div>
 
                     <!-- Patterns -->
@@ -637,5 +588,12 @@
     </div>
 
     <script src="script.js"></script>
+    
+    <script>
+        // Set default background to Cream
+        document.addEventListener('DOMContentLoaded', function() {
+            // This will be handled in script.js
+        });
+    </script>
 </body>
 </html>

@@ -53,9 +53,21 @@ const overlayConfig = {
     }
 };
 
+// Sticker system variables
+let activeSticker = null;
+let isDragging = false;
+let isResizing = false;
+let startX = 0;
+let startY = 0;
+let startStickerX = 0;
+let startStickerY = 0;
+let startWidth = 0;
+let startHeight = 0;
+
 // Initialize flash element reference
 document.addEventListener('DOMContentLoaded', () => {
     flashElement = document.getElementById('flash');
+    initStickerSystem();
 });
 
 // Simple screen navigation
@@ -158,7 +170,7 @@ async function initCamera() {
         // Clear preview sidebar
         document.getElementById('previewSidebar').innerHTML = '';
 
-        // Dapatkan daftar perangkat kamera
+        // Get list of camera devices
         await getCameraDevices();
         
         // Jika ada kamera yang terdeteksi, gunakan kamera pertama sebagai default
@@ -177,28 +189,28 @@ async function initCamera() {
     }
 }
 
-// Dapatkan daftar perangkat kamera yang tersedia
+// Get list of available camera devices
 async function getCameraDevices() {
     try {
-        // Pastikan izin kamera sudah diberikan
+        // Ensure camera permission is granted
         await navigator.mediaDevices.getUserMedia({ video: true });
-        
-        // Enumerate perangkat
+
+        // Enumerate devices
         const devices = await navigator.mediaDevices.enumerateDevices();
         videoDevices = devices.filter(device => device.kind === 'videoinput');
-        
-        // Update dropdown pemilihan kamera
+
+        // Update camera selection dropdown
         const cameraSelect = document.getElementById('cameraSelect');
         cameraSelect.innerHTML = '<option value="">Select Camera</option>';
-        
+
         videoDevices.forEach(device => {
             const option = document.createElement('option');
             option.value = device.deviceId;
             option.text = device.label || `Camera ${cameraSelect.length}`;
             cameraSelect.appendChild(option);
         });
-        
-        // Tambahkan event listener untuk perubahan kamera
+
+        // Add event listener for camera change
         cameraSelect.addEventListener('change', async () => {
             if (cameraSelect.value) {
                 currentDeviceId = cameraSelect.value;
@@ -261,11 +273,11 @@ function capturePhoto() {
     let seconds = 3;
     const countdownElement = document.getElementById('countdown');
     countdownElement.style.display = 'block';
-    countdownElement.textContent = `Capturing in ${seconds}...`;
+    countdownElement.textContent = `${seconds}`;
 
     const countdownInterval = setInterval(() => {
         seconds--;
-        countdownElement.textContent = `Capturing in ${seconds}...`;
+        countdownElement.textContent = `${seconds}`;
 
         if (seconds <= 0) {
             clearInterval(countdownInterval);
@@ -435,6 +447,7 @@ function createFinalStrip() {
         img.style.objectFit = 'cover';
         img.style.width = '100%';
         img.style.height = '100%';
+        img.style.borderRadius = '10px';
 
         photoDiv.appendChild(img);
         stripTemplate.appendChild(photoDiv);
@@ -516,7 +529,7 @@ function uploadBackground(input) {
         alert('Please select an image file (JPEG, PNG, etc.)');
         return;
     }
-
+ 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
         alert('File is too large. Maximum size is 5MB.');
@@ -542,21 +555,6 @@ function uploadBackground(input) {
 }
 
 // Sticker Management System
-let activeSticker = null;
-let isDragging = false;
-let isResizing = false;
-let startX = 0;
-let startY = 0;
-let startStickerX = 0;
-let startStickerY = 0;
-let startWidth = 0;
-let startHeight = 0;
-
-// Initialize sticker system
-document.addEventListener('DOMContentLoaded', function() {
-    initStickerSystem();
-});
-
 function initStickerSystem() {
     // Add category switching functionality
     const categories = document.querySelectorAll('.sticker-category');
@@ -578,7 +576,7 @@ function switchStickerCategory(category) {
     document.querySelectorAll('.sticker-category-content').forEach(content => {
         content.classList.remove('active');
     });
-    document.querySelector(`[data-category="${category}"]`).classList.add('active');
+    document.querySelector(`.sticker-category-content[data-category="${category}"]`).classList.add('active');
 }
 
 // Add emoji sticker to photo strip
@@ -757,7 +755,6 @@ function dragSticker(e) {
     let newTop = e.clientY - containerRect.top - startStickerY;
 
     // Allow stickers to be positioned anywhere in the preview area
-    // Remove strict constraints to allow more flexibility
     activeSticker.style.left = `${newLeft}px`;
     activeSticker.style.top = `${newTop}px`;
 }
@@ -775,7 +772,6 @@ function dragStickerTouch(e) {
     let newTop = touch.clientY - containerRect.top - startStickerY;
 
     // Allow stickers to be positioned anywhere in the preview area
-    // Remove strict constraints to allow more flexibility
     activeSticker.style.left = `${newLeft}px`;
     activeSticker.style.top = `${newTop}px`;
 }
@@ -960,7 +956,7 @@ async function downloadWithHtml2Canvas() {
         const tempContainer = document.createElement('div');
         tempContainer.style.position = 'absolute';
         tempContainer.style.left = '-9999px';
-        tempContainer.style.width = '600px'; // Larger size for better quality
+        tempContainer.style.width = element.offsetWidth + 'px'; // Match preview width
         tempContainer.style.height = 'auto';
         tempContainer.style.transform = 'scale(2)'; // Scale up for higher resolution
         tempContainer.style.transformOrigin = 'top left';
@@ -1367,44 +1363,6 @@ function uploadLogo(input) {
     }
 }
 
-function uploadBackground(input) {
-    const file = input.files[0];
-    if (!file) return;
-
-    // Validasi ukuran file (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-        alert('File terlalu besar. Maksimal 5MB');
-        return;
-    }
-
-    // Validasi tipe file
-    if (!file.type.match('image.*')) {
-        alert('Hanya file gambar yang diperbolehkan');
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        // Set background
-        const bgUrl = e.target.result;
-        selectedBackground = `url(${bgUrl})`;
-        const container = document.getElementById('capture-container');
-        container.style.backgroundImage = `url(${bgUrl})`;
-        container.style.backgroundSize = 'cover';
-        container.style.backgroundPosition = 'center';
-
-        // Update selected state
-        document.querySelectorAll('.background-option').forEach(option => {
-            option.classList.remove('selected');
-        });
-        input.closest('.background-option').classList.add('selected');
-    };
-    reader.onerror = function () {
-        alert('Gagal membaca file');
-    };
-    reader.readAsDataURL(file);
-}
-
 // Function to go to customization
 function goToCustomization() {
     if (capturedPhotos.length >= photosNeeded) {
@@ -1432,48 +1390,3 @@ window.addEventListener('beforeunload', () => {
 navigator.mediaDevices.addEventListener('devicechange', async () => {
     await getCameraDevices();
 });
-
-/* Tambahkan juga JavaScript untuk toggle mode */
-// Deteksi perangkat
-const isMobileDevice = () => {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-           window.innerWidth <= 768;
-};
-
-// Toggle mode
-let currentMode = isMobileDevice() ? 'mobile' : 'web';
-
-function setMode(mode) {
-    currentMode = mode;
-    document.body.classList.remove('mode-web', 'mode-mobile');
-    document.body.classList.add(`mode-${mode}`);
-    
-    // Simpan preferensi pengguna
-    localStorage.setItem('preferredMode', mode);
-    
-    // Update toggle button
-    document.querySelectorAll('.mode-toggle-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.dataset.mode === mode) {
-            btn.classList.add('active');
-        }
-    });
-}
-
-// Inisialisasi mode
-function initMode() {
-    const savedMode = localStorage.getItem('preferredMode');
-    const initialMode = savedMode || (isMobileDevice() ? 'mobile' : 'web');
-    setMode(initialMode);
-    
-    // Tambahkan event listener untuk toggle buttons
-    document.querySelectorAll('.mode-toggle-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            setMode(btn.dataset.mode);
-        });
-    });
-}
-
-// Panggil saat DOM siap
-document.addEventListener('DOMContentLoaded', initMode);
-
