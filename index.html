@@ -111,11 +111,11 @@
         </div>
 
         <div class="tab-nav">
-            <button class="tab-btn active" onclick="openTemplateTab('templates-tab')">
+            <button class="tab-btn active" onclick="openTemplateTab(this, 'templates-tab')">
                 <span class="tab-icon">📐</span>
                 <span>Layout</span>
             </button>
-            <button class="tab-btn" onclick="openTemplateTab('overlays-tab')">
+            <button class="tab-btn" onclick="openTemplateTab(this, 'overlays-tab')">
                 <span class="tab-icon">🖼️</span>
                 <span>Overlay</span>
             </button>
@@ -152,25 +152,25 @@
 
         <div id="overlays-tab" class="tab-content">
             <div class="overlay-options">
-                <div class="overlay-option selected" onclick="selectOverlay('none')">
+                <div class="overlay-option selected" onclick="selectOverlay(this, 'none')">
                     <div class="overlay-preview clean-preview">
                         <span class="preview-icon">✨</span>
                     </div>
                     <div class="overlay-name">Classic</div>
                 </div>
-                <div class="overlay-option" onclick="selectOverlay('overlay/overlay1.png')">
+                <div class="overlay-option" onclick="selectOverlay(this, 'overlay/overlay1.png')">
                     <div class="overlay-preview floral-preview">
                         <img src="overlay/overlay1.png" style="width:100%; height:100%; object-fit:contain;">
                     </div>
                     <div class="overlay-name">Floral</div>
                 </div>
-                <div class="overlay-option" onclick="selectOverlay('overlay/overlay2.png')">
+                <div class="overlay-option" onclick="selectOverlay(this, 'overlay/overlay2.png')">
                     <div class="overlay-preview polaroid-preview">
                         <img src="overlay/overlay2.png" style="width:100%; height:100%; object-fit:contain;">
                     </div>
                     <div class="overlay-name">Polaroid</div>
                 </div>
-                <div class="overlay-option" onclick="selectOverlay('overlay/overlay3.png')">
+                <div class="overlay-option" onclick="selectOverlay(this, 'overlay/overlay3.png')">
                     <div class="overlay-preview vintage-preview">
                         <img src="overlay/overlay3.png" style="width:100%; height:100%; object-fit:contain;">
                     </div>
@@ -297,7 +297,7 @@
                     <div class="footer-title">
                         <img id="footerLogo" src="logo/logo.png" alt="Rey Studio" class="footer-logo" crossorigin="anonymous">
                     </div>
-                    
+                    <div class="footer-subtitle">Created with Rey Studio</div>
                 </div>
                 
             </div>
@@ -305,23 +305,23 @@
 
         <div class="customization-tabs">
             <div class="tab-nav">
-                <button class="tab-btn active" onclick="openTab('background-tab')">
+                <button class="tab-btn active" onclick="openTab(this, 'background-tab')">
                     <span class="tab-icon">🎨</span>
                     <span>Background</span>
                 </button>
-                <button class="tab-btn" onclick="openTab('filter-tab')">
+                <button class="tab-btn" onclick="openTab(this, 'filter-tab')">
                     <span class="tab-icon">🎬</span>
                     <span>Filters</span>
                 </button>
-                <button class="tab-btn" onclick="openTab('sticker-tab')">
+                <button class="tab-btn" onclick="openTab(this, 'sticker-tab')">
                     <span class="tab-icon">✨</span>
                     <span>Stickers</span>
                 </button>
-                <button class="tab-btn" onclick="openTab('frame-tab')">
+                <button class="tab-btn" onclick="openTab(this, 'frame-tab')">
                     <span class="tab-icon">🖼️</span>
                     <span>Frames</span>
                 </button>
-                <button class="tab-btn" onclick="openTab('logo-tab')">
+                <button class="tab-btn" onclick="openTab(this, 'logo-tab')">
                     <span class="tab-icon">🏷️</span>
                     <span>Logo</span>
                 </button>
@@ -329,37 +329,37 @@
 
             <div id="filter-tab" class="tab-content">
                 <div class="options-grid">
-                    <div class="filter-option selected" onclick="applyFilter('normal')">
+                    <div class="filter-option selected" onclick="applyFilter(this, 'normal')">
                         <div class="filter-preview filter-normal">
                             <span class="filter-icon">🌅</span>
                         </div>
                         <div class="option-name">Normal</div>
                     </div>
-                    <div class="filter-option" onclick="applyFilter('clarendon')">
+                    <div class="filter-option" onclick="applyFilter(this, 'clarendon')">
                         <div class="filter-preview filter-clarendon">
                             <span class="filter-icon">🌟</span>
                         </div>
                         <div class="option-name">Clarendon</div>
                     </div>
-                    <div class="filter-option" onclick="applyFilter('gingham')">
+                    <div class="filter-option" onclick="applyFilter(this, 'gingham')">
                         <div class="filter-preview filter-gingham">
                             <span class="filter-icon">🎞️</span>
                         </div>
                         <div class="option-name">Gingham</div>
                     </div>
-                    <div class="filter-option" onclick="applyFilter('moon')">
+                    <div class="filter-option" onclick="applyFilter(this, 'moon')">
                         <div class="filter-preview filter-moon">
                             <span class="filter-icon">🌙</span>
                         </div>
                         <div class="option-name">Moon</div>
                     </div>
-                    <div class="filter-option" onclick="applyFilter('lark')">
+                    <div class="filter-option" onclick="applyFilter(this, 'lark')">
                         <div class="filter-preview filter-lark">
                             <span class="filter-icon">🐦</span>
                         </div>
                         <div class="option-name">Lark</div>
                     </div>
-                    <div class="filter-option" onclick="applyFilter('reyes')">
+                    <div class="filter-option" onclick="applyFilter(this, 'reyes')">
                         <div class="filter-preview filter-reyes">
                             <span class="filter-icon">☀️</span>
                         </div>
@@ -587,37 +587,37 @@
 
             <div id="frame-tab" class="tab-content">
                 <div class="options-grid">
-                    <div class="frame-option selected" onclick="applyFrame('none')">
+                    <div class="frame-option selected" onclick="applyFrame(this, 'none')">
                         <div class="frame-preview none-frame">
                             <div class="frame-label">No Frame</div>
                         </div>
                         <div class="option-name">Clean</div>
                     </div>
-                    <div class="frame-option" onclick="applyFrame('polaroid')">
+                    <div class="frame-option" onclick="applyFrame(this, 'polaroid')">
                         <div class="frame-preview polaroid-frame">
                             <div class="frame-inner"></div>
                         </div>
                         <div class="option-name">Polaroid</div>
                     </div>
-                    <div class="frame-option" onclick="applyFrame('vintage')">
+                    <div class="frame-option" onclick="applyFrame(this, 'vintage')">
                         <div class="frame-preview vintage-frame">
                             <div class="frame-inner"></div>
                         </div>
                         <div class="option-name">Vintage</div>
                     </div>
-                    <div class="frame-option" onclick="applyFrame('instax')">
+                    <div class="frame-option" onclick="applyFrame(this, 'instax')">
                         <div class="frame-preview instax-frame">
                             <div class="frame-inner"></div>
                         </div>
                         <div class="option-name">Instax</div>
                     </div>
-                    <div class="frame-option" onclick="applyFrame('wood')">
+                    <div class="frame-option" onclick="applyFrame(this, 'wood')">
                         <div class="frame-preview wood-frame">
                             <div class="frame-inner"></div>
                         </div>
                         <div class="option-name">Wood</div>
                     </div>
-                    <div class="frame-option" onclick="applyFrame('gold')">
+                    <div class="frame-option" onclick="applyFrame(this, 'gold')">
                         <div class="frame-preview gold-frame">
                             <div class="frame-inner"></div>
                         </div>
@@ -628,19 +628,19 @@
 
             <div id="logo-tab" class="tab-content">
                 <div class="options-grid">
-                    <div class="logo-option selected" onclick="changeLogo('logo/spring.png')">
+                    <div class="logo-option selected" onclick="changeLogo(this, 'logo/spring.png')">
                         <div class="logo-preview logo-1">
                             <span class="logo-emoji">🌸</span>
                         </div>
                         <div class="option-name">Spring</div>
                     </div>
-                    <div class="logo-option" onclick="changeLogo('logo/escape.png')">
+                    <div class="logo-option" onclick="changeLogo(this, 'logo/escape.png')">
                         <div class="logo-preview logo-2">
                             <span class="logo-emoji">🏃‍♀️</span>
                         </div>
                         <div class="option-name">Escape</div>
                     </div>
-                    <div class="logo-option" onclick="changeLogo('logo/justdoit.png')">
+                    <div class="logo-option" onclick="changeLogo(this, 'logo/justdoit.png')">
                         <div class="logo-preview logo-3">
                             <span class="logo-emoji">💪</span>
                         </div>

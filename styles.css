@@ -197,7 +197,7 @@ body {
 
 .step-card {
     background: white;
-    border-radius: 10px;
+    border-radius: 20px;
     padding: 2rem;
     text-align: left;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
@@ -637,7 +637,7 @@ body {
     position: relative;
     width: 100%;
     aspect-ratio: 1;
-    border-radius: 0px;
+    border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
@@ -669,7 +669,7 @@ body {
     background: white;
     border: 2px solid #e0e0e0;
     padding: 0.8rem 1.5rem;
-    border-radius: 15px;
+    border-radius: 50px;
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 0.9rem;
@@ -696,12 +696,12 @@ body {
 .preview-container {
     margin: 2rem auto;
     perspective: 1000px;
-    max-width: 600px;
+    width: 100%;
 }
 
 .strip-preview {
     background: white;
-    border-radius: 2px;
+    border-radius: 25px;
     padding: 1.5rem;
     width: 100%;
     max-width: 400px;
@@ -726,7 +726,7 @@ body {
     height: 20px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     left: 0;
-    border-radius: 0px;
+    border-radius: 10px;
     opacity: 0.1;
 }
 
@@ -754,9 +754,9 @@ body {
 
 .strip-photo {
     width: 100%;
-    /* aspect-ratio is set dynamically via JavaScript based on camera aspect ratio */
+    height: 140px;
     background: #f8f9fa;
-    border-radius: 0px;
+    border-radius: 15px;
     overflow: hidden;
     position: relative;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -764,7 +764,7 @@ body {
 }
 
 .vertical-6 .strip-photo {
-    height: 150px;
+    height: 120px;
 }
 
 .strip-photo:hover {
@@ -785,7 +785,7 @@ body {
 }
 
 .footer-logo {
-    height: 25px;
+    max-height: 40px;
     margin-bottom: 0.5rem;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
@@ -809,7 +809,7 @@ body {
     gap: 1.5rem;
     padding: 1.5rem;
     background: rgba(255, 255, 255, 0.5);
-    border-radius: 10px;
+    border-radius: 20px;
     backdrop-filter: blur(10px);
 }
 
@@ -850,7 +850,7 @@ body {
 .logo-preview {
     width: 100%;
     height: 100px;
-    border-radius: 5px;
+    border-radius: 15px;
     margin-bottom: 0.8rem;
     border: 3px solid transparent;
     transition: all 0.3s ease;
@@ -1180,7 +1180,7 @@ body {
 .overlay-preview {
     width: 100%;
     height: 100px;
-    border-radius: 0px;
+    border-radius: 15px;
     margin-bottom: 0.8rem;
     border: 3px solid transparent;
     transition: all 0.3s ease;
@@ -1348,7 +1348,7 @@ body {
     justify-content: center;
     font-size: 2rem;
     margin-bottom: 0.5rem;
-    border-radius: 0px;
+    border-radius: 8px;
     background: #f8f9fa;
     transition: all 0.3s ease;
 }
@@ -1357,7 +1357,7 @@ body {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    border-radius: 0px;
+    border-radius: 6px;
 }
 
 .sticker-name {
@@ -1392,7 +1392,7 @@ body {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    border-radius: 5px;
+    border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -1562,8 +1562,7 @@ body {
     /* Preview container mobile */
     .strip-preview {
         padding: 1.2rem;
-        height: 576px;
-        
+        max-width: 350px;
         margin: 1rem auto;
     }
     
@@ -1573,7 +1572,7 @@ body {
     
     .strip-photo {
         height: 120px;
-        
+        border-radius: 12px;
     }
     
     .vertical-6 .strip-photo {

@@ -16,7 +16,6 @@ let isCountingDown = false;
 let currentOverlay = 'none';
 let videoDevices = [];
 let currentDeviceId = null;
-let cameraAspectRatio = 16/9; // Default fallback
 
 // Template configurations
 const templateConfig = {
@@ -82,7 +81,7 @@ function showScreen(screenId) {
 }
 
 // Tab navigation for template selection
-function openTemplateTab(tabId) {
+function openTemplateTab(element, tabId) {
     const tabNav = document.querySelector('#screen3-template .tab-nav');
     const tabButtons = tabNav.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('#screen3-template .tab-content');
@@ -93,13 +92,13 @@ function openTemplateTab(tabId) {
     const targetTab = document.getElementById(tabId);
     if (targetTab) targetTab.classList.add('active');
 
-    if (event && event.currentTarget) {
-        event.currentTarget.classList.add('active');
+    if (element) {
+        element.classList.add('active');
     }
 }
 
 // Tab navigation for customization
-function openTab(tabId) {
+function openTab(element, tabId) {
     const tabNav = document.querySelector('#screen5-preview .tab-nav');
     const tabButtons = tabNav.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('#screen5-preview .tab-content');
@@ -110,8 +109,8 @@ function openTab(tabId) {
     const targetTab = document.getElementById(tabId);
     if (targetTab) targetTab.classList.add('active');
 
-    if (event && event.currentTarget) {
-        event.currentTarget.classList.add('active');
+    if (element) {
+        element.classList.add('active');
     }
 }
 
@@ -136,17 +135,17 @@ function selectTemplate(element, templateType) {
 }
 
 // Select overlay
-function selectOverlay(overlayUrl) {
+function selectOverlay(element, overlayUrl) {
     currentOverlay = overlayUrl;
     
-    const element = event.currentTarget.closest('.overlay-option');
-    if (!element) return;
+    const overlayOption = element.closest('.overlay-option');
+    if (!overlayOption) return;
 
     // Update selected state in UI
     document.querySelectorAll('.overlay-option').forEach(option => {
         option.classList.remove('selected');
     });
-    element.classList.add('selected');
+    overlayOption.classList.add('selected');
     
     // Update the overlay preview in all templates
     updateTemplateOverlayPreview();
@@ -267,9 +266,6 @@ async function startCamera(deviceId) {
         cameraView.onloadedmetadata = () => {
             cameraView.style.width = '100%';
             cameraView.style.height = 'auto';
-
-            // Capture the actual camera aspect ratio
-            cameraAspectRatio = cameraView.videoWidth / cameraView.videoHeight;
         };
     } catch (err) {
         console.error("Error starting camera:", err);
@@ -319,49 +315,17 @@ function takePhoto() {
     }
 
     const cameraView = document.getElementById('cameraView');
-    const cameraContainer = document.getElementById('cameraView').parentElement;
-
-    // Get the actual displayed dimensions of the camera view
-    const containerRect = cameraContainer.getBoundingClientRect();
-    const containerWidth = containerRect.width;
-    const containerHeight = containerRect.height;
-
-    // Video source dimensions
-    const videoWidth = cameraView.videoWidth;
-    const videoHeight = cameraView.videoHeight;
-
-    // Calculate the scaling and cropping to match what the user sees
-    const containerAspectRatio = containerWidth / containerHeight;
-    const videoAspectRatio = videoWidth / videoHeight;
-
-    let sourceX, sourceY, sourceWidth, sourceHeight;
-
-    if (videoAspectRatio > containerAspectRatio) {
-        // Video is wider than container, crop width
-        sourceHeight = videoHeight;
-        sourceWidth = videoHeight * containerAspectRatio;
-        sourceX = (videoWidth - sourceWidth) / 2;
-        sourceY = 0;
-    } else {
-        // Video is taller than container, crop height
-        sourceWidth = videoWidth;
-        sourceHeight = videoWidth / containerAspectRatio;
-        sourceX = 0;
-        sourceY = (videoHeight - sourceHeight) / 2;
-    }
-
-    // Create canvas with the cropped dimensions
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
-    canvas.width = sourceWidth;
-    canvas.height = sourceHeight;
 
-    // Draw the cropped portion that matches what the user sees
-    context.drawImage(
-        cameraView,
-        sourceX, sourceY, sourceWidth, sourceHeight,  // source rectangle
-        0, 0, sourceWidth, sourceHeight                // destination rectangle
-    );
+    // Set canvas size to match the camera aspect ratio but larger for better quality
+    const videoWidth = cameraView.videoWidth;
+    const videoHeight = cameraView.videoHeight;
+    canvas.width = videoWidth;
+    canvas.height = videoHeight;
+
+    // Draw the full video frame
+    context.drawImage(cameraView, 0, 0, canvas.width, canvas.height);
 
     // Apply mirror effect to captured photo if mirror is enabled
     if (mirrorOn) {
@@ -371,18 +335,36 @@ function takePhoto() {
         context.restore();
     }
 
-    // Resize to final output size (1920x1080 for high quality)
+    // Create a square crop from the center
+    const size = Math.min(videoWidth, videoHeight);
+    const offsetX = (videoWidth - size) / 2;
+    const offsetY = (videoHeight - size) / 2;
+
+    // Create a new canvas for the cropped image
+    const croppedCanvas = document.createElement('canvas');
+    const croppedContext = croppedCanvas.getContext('2d');
+    croppedCanvas.width = size;
+    croppedCanvas.height = size;
+
+    // Draw the cropped portion
+    croppedContext.drawImage(
+        canvas,
+        offsetX, offsetY, size, size, // source rectangle
+        0, 0, size, size              // destination rectangle
+    );
+
+    // Resize to final output size (600x600 for high quality)
     const finalCanvas = document.createElement('canvas');
     const finalContext = finalCanvas.getContext('2d');
-    finalCanvas.width = 1920;
-    finalCanvas.height = 1080;
+    finalCanvas.width = 600;
+    finalCanvas.height = 600;
 
     // Use high-quality image scaling
     finalContext.imageSmoothingQuality = 'high';
     finalContext.drawImage(
-        canvas,
-        0, 0, sourceWidth, sourceHeight,
-        0, 0, 1920, 1080
+        croppedCanvas,
+        0, 0, size, size,
+        0, 0, 600, 600
     );
 
     const photoDataUrl = finalCanvas.toDataURL('image/png', 1.0); // Highest quality
@@ -478,17 +460,11 @@ function createFinalStrip() {
         img.src = capturedPhotos[i];
         img.className = `filter-${selectedFilter}`;
 
-        // Set aspect ratio based on camera dimensions
-        img.onload = function() {
-            const aspectRatio = this.naturalWidth / this.naturalHeight;
-            photoDiv.style.aspectRatio = aspectRatio;
-        };
-
         // Ensure image fills the container properly
         img.style.objectFit = 'cover';
         img.style.width = '100%';
         img.style.height = '100%';
-
+        img.style.borderRadius = '10px';
 
         photoDiv.appendChild(img);
         stripTemplate.appendChild(photoDiv);
@@ -509,17 +485,17 @@ function createFinalStrip() {
 }
 
 // Apply filter to all photos
-function applyFilter(filterName) {
+function applyFilter(element, filterName) {
     selectedFilter = filterName;
 
-    const element = event.currentTarget.closest('.filter-option');
-    if (!element) return;
+    const filterOption = element.closest('.filter-option');
+    if (!filterOption) return;
 
     // Update selected state in UI
     document.querySelectorAll('.filter-option').forEach(option => {
         option.classList.remove('selected');
     });
-    element.classList.add('selected');
+    filterOption.classList.add('selected');
 
     // Apply filter to all photos
     const allPhotos = document.querySelectorAll('.strip-photo img');
@@ -922,13 +898,7 @@ function uploadOverlay(input) {
 
     const reader = new FileReader();
     reader.onload = function (e) {
-        selectOverlay(e.target.result);
-
-        // Update the selected state
-        document.querySelectorAll('.overlay-option').forEach(option => {
-            option.classList.remove('selected');
-        });
-        input.closest('.overlay-option').classList.add('selected');
+        selectOverlay(input, e.target.result);
     };
     reader.onerror = function () {
         alert('Error reading file. Please try again.');
@@ -949,120 +919,102 @@ async function downloadWithHtml2Canvas() {
     downloadBtn.disabled = true;
 
     try {
-        // 1. Create a high-res clone for capture - preserve exact aspect ratio
+        // 1. Create a high-res clone for capture
         const originalWidth = element.offsetWidth;
-        const originalHeight = element.offsetHeight;
-        const originalAspectRatio = originalWidth / originalHeight;
-
-        // Use higher resolution while maintaining exact aspect ratio
-        const targetWidth = 1200;
-        const targetHeight = targetWidth / originalAspectRatio;
+        const targetWidth = 800; // Fixed width for consistent high quality
         const scaleFactor = targetWidth / originalWidth;
 
         const clone = element.cloneNode(true);
         clone.style.width = targetWidth + 'px';
-        clone.style.height = targetHeight + 'px';
         clone.style.position = 'fixed';
         clone.style.left = '100vw';
         clone.style.top = '0';
         clone.style.margin = '0';
         clone.style.transform = 'none';
         clone.style.maxWidth = 'none';
-        clone.style.overflow = 'visible';
         document.body.appendChild(clone);
 
-        // 2. Copy all computed styles to ensure exact visual match
-        const copyStyles = (source, target) => {
-            const computedStyle = window.getComputedStyle(source);
-            const styleProps = [
-                'background', 'backgroundColor', 'backgroundImage', 'backgroundSize', 'backgroundPosition',
-                'border', 'borderRadius', 'borderWidth', 'borderColor', 'borderStyle',
-                'boxShadow', 'padding', 'margin', 'width', 'height', 'aspectRatio',
-                'display', 'flexDirection', 'justifyContent', 'alignItems', 'gap',
-                'position', 'top', 'left', 'right', 'bottom', 'zIndex',
-                'fontSize', 'fontFamily', 'fontWeight', 'color', 'textAlign',
-                'objectFit', 'objectPosition', 'overflow', 'boxSizing'
-            ];
+        // 2. Adjust styles of the clone for the new width
+        const scaleStyles = (el) => {
+            const styles = window.getComputedStyle(el);
 
-            styleProps.forEach(prop => {
-                const value = computedStyle.getPropertyValue(prop);
-                if (value && value !== 'none' && value !== 'auto' && value !== 'normal') {
-                    target.style.setProperty(prop, value, 'important');
+            // Scale padding, gap, border-radius, font-size, border-width
+            const propsToScale = [
+                'padding', 'paddingLeft', 'paddingRight', 'paddingTop', 'paddingBottom',
+                'gap', 'borderRadius', 'fontSize',
+                'marginTop', 'marginBottom', 'marginLeft', 'marginRight',
+                'borderWidth', 'borderTopWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderRightWidth',
+                'outlineWidth'
+            ];
+            propsToScale.forEach(prop => {
+                const val = styles[prop];
+                if (val && val.includes('px')) {
+                    const num = parseFloat(val);
+                    el.style[prop] = (num * scaleFactor) + 'px';
                 }
             });
+
+            // Handle photos specifically
+            if (el.classList.contains('strip-photo')) {
+                const height = parseFloat(styles.height);
+                el.style.height = (height * scaleFactor) + 'px';
+            }
+
+
+            // Recurse
+            Array.from(el.children).forEach(scaleStyles);
         };
 
-        // Apply styles to all elements in the clone
-        const allElements = clone.querySelectorAll('*');
-        const originalElements = element.querySelectorAll('*');
+        scaleStyles(clone);
 
-        allElements.forEach((el, index) => {
-            if (originalElements[index]) {
-                copyStyles(originalElements[index], el);
-            }
+        // 2b. Specifically scale stickers and text using accurate bounding boxes
+        const originalRect = element.getBoundingClientRect();
+        const originalStickers = element.querySelectorAll('.sticker');
+        const clonedStickers = clone.querySelectorAll('.sticker');
+
+        originalStickers.forEach((orig, index) => {
+            const clonedSticker = clonedStickers[index];
+            const rect = orig.getBoundingClientRect();
+
+            const relLeft = rect.left - originalRect.left;
+            const relTop = rect.top - originalRect.top;
+
+            clonedSticker.style.left = (relLeft * scaleFactor) + 'px';
+            clonedSticker.style.top = (relTop * scaleFactor) + 'px';
+            clonedSticker.style.width = (rect.width * scaleFactor) + 'px';
+            clonedSticker.style.height = (rect.height * scaleFactor) + 'px';
+            clonedSticker.style.transform = 'none';
+            clonedSticker.style.margin = '0';
         });
 
-        // Special handling for the main container
-        copyStyles(element, clone);
-
-        // 3. Scale all dimensions proportionally
-        const scaleElement = (el) => {
-            // Scale basic dimensions
-            const rect = el.getBoundingClientRect();
-            if (rect.width > 0 && rect.height > 0) {
-                el.style.width = (rect.width * scaleFactor) + 'px';
-                el.style.height = (rect.height * scaleFactor) + 'px';
-            }
-
-            // Scale positioning
-            if (el.style.position === 'absolute' || el.style.position === 'relative') {
-                const computedStyle = window.getComputedStyle(el);
-                const left = computedStyle.getPropertyValue('left');
-                const top = computedStyle.getPropertyValue('top');
-
-                if (left && left !== 'auto') {
-                    el.style.left = (parseFloat(left) * scaleFactor) + 'px';
-                }
-                if (top && top !== 'auto') {
-                    el.style.top = (parseFloat(top) * scaleFactor) + 'px';
-                }
-            }
-
-            // Scale font sizes
-            const fontSize = window.getComputedStyle(el).fontSize;
-            if (fontSize && fontSize.includes('px')) {
-                el.style.fontSize = (parseFloat(fontSize) * scaleFactor) + 'px';
-            }
-
-            // Scale borders and padding
-            const borderWidth = window.getComputedStyle(el).borderWidth;
-            if (borderWidth && borderWidth.includes('px')) {
-                el.style.borderWidth = (parseFloat(borderWidth) * scaleFactor) + 'px';
-            }
-
-            const padding = window.getComputedStyle(el).padding;
-            if (padding && padding.includes('px')) {
-                el.style.padding = (parseFloat(padding) * scaleFactor) + 'px';
-            }
-
-            // Recurse for children
-            Array.from(el.children).forEach(scaleElement);
-        };
-
-        Array.from(clone.children).forEach(scaleElement);
-
-        // 4. Wait for all images to load
+        // 2c. Wait for all images in clone to load BEFORE processing filters
         const images = Array.from(clone.querySelectorAll('img'));
-        await Promise.all(images.map(img => {
-            if (img.complete && img.naturalWidth !== 0) return Promise.resolve();
-            return new Promise((resolve, reject) => {
-                img.onload = resolve;
-                img.onerror = reject;
-                if (!img.complete) img.src = img.src; // Trigger reload
-            });
-        }));
+        const bgImages = Array.from(clone.querySelectorAll('[style*="background-image"]'));
 
-        // 5. Apply filters to images if needed
+        await Promise.all([
+            ...images.map(img => {
+                if (img.complete && img.naturalWidth !== 0) return Promise.resolve();
+                return new Promise(resolve => {
+                    img.onload = resolve;
+                    img.onerror = resolve;
+                    // Reset src to trigger load if it wasn't complete
+                    if (!img.complete) img.src = img.src;
+                });
+            }),
+            ...bgImages.map(el => {
+                const bg = el.style.backgroundImage;
+                const url = bg.match(/url\(["']?([^"']+)["']?\)/)?.[1];
+                if (!url) return Promise.resolve();
+                return new Promise(resolve => {
+                    const tempImg = new Image();
+                    tempImg.onload = resolve;
+                    tempImg.onerror = resolve;
+                    tempImg.src = url;
+                });
+            })
+        ]);
+
+        // 3. Process images and apply filters
         const photoImages = clone.querySelectorAll('.strip-photo img');
         for (const img of photoImages) {
             const filterClass = Array.from(img.classList).find(c => c.startsWith('filter-'))?.replace('filter-', '');
@@ -1074,32 +1026,38 @@ async function downloadWithHtml2Canvas() {
                     img.className = '';
                 } catch (filterErr) {
                     console.warn("Filter application failed for an image:", filterErr);
+                    // Continue without filter rather than failing entirely
                 }
             }
+
+            // Use background-image for better object-fit: cover compatibility in html2canvas
+            const parent = img.parentElement;
+            parent.style.backgroundImage = `url('${img.src}')`;
+            parent.style.backgroundSize = 'cover';
+            parent.style.backgroundPosition = 'center';
+            img.style.opacity = '0';
         }
 
-        // 6. Hide UI controls that shouldn't appear in the download
+        // 4. Hide controls and resize handles in the clone
         clone.querySelectorAll('.sticker-controls, .sticker-resize-handle').forEach(el => {
-            el.style.display = 'none !important';
+            el.style.display = 'none';
         });
 
-        // 7. Ensure proper rendering with a delay
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Small delay to ensure rendering is complete
+        await new Promise(resolve => setTimeout(resolve, 300));
 
-        // 8. Capture with html2canvas using settings that match the preview
+        // 6. Capture
         const canvas = await html2canvas(clone, {
             scale: 1,
+            logging: true, // Enable logging to help debugging
             useCORS: true,
-            allowTaint: false,
+            allowTaint: false, // Don't allow taint if we want to use toDataURL
             backgroundColor: null,
-            width: targetWidth,
-            height: originalHeight * scaleFactor,
-            logging: false,
-            imageTimeout: 0,
-            removeContainer: true
+            windowWidth: targetWidth,
+            width: targetWidth
         });
 
-        // 9. Cleanup and download
+        // 7. Cleanup and download
         document.body.removeChild(clone);
 
         const link = document.createElement('a');
@@ -1223,15 +1181,23 @@ function applyManualFilter(ctx, canvas, filterClass) {
     ctx.putImageData(imageData, 0, 0);
 }
 
-function applyFrame(frameType) {
+function applyFrame(element, frameType) {
     const stripPhotos = document.querySelectorAll('.strip-photo');
+
+    // Update selected state in UI
+    if (element) {
+        document.querySelectorAll('.frame-option').forEach(option => {
+            option.classList.remove('selected');
+        });
+        element.closest('.frame-option').classList.add('selected');
+    }
 
     stripPhotos.forEach(photo => {
         // Reset all frames
         photo.style.border = 'none';
         photo.style.borderBottom = 'none';
         photo.style.boxShadow = 'none';
-        photo.style.borderRadius = '0px';
+        photo.style.borderRadius = '4px';
         photo.style.padding = '0';
         photo.style.background = 'transparent';
 
@@ -1443,7 +1409,7 @@ function retakeAllPhotos() {
 }
 
 // Add these functions to the script section
-function changeLogo(logoUrl) {
+function changeLogo(element, logoUrl) {
     const logoElement = document.querySelector('.photo-footer img');
     logoElement.src = logoUrl;
 
@@ -1451,7 +1417,7 @@ function changeLogo(logoUrl) {
     document.querySelectorAll('.logo-option').forEach(option => {
         option.classList.remove('selected');
     });
-    event.currentTarget.classList.add('selected');
+    element.closest('.logo-option').classList.add('selected');
 }
 
 function uploadLogo(input) {
@@ -1459,13 +1425,7 @@ function uploadLogo(input) {
     if (file) {
         const reader = new FileReader();
         reader.onload = function (e) {
-            changeLogo(e.target.result);
-
-            // Update the selected state for the upload option
-            document.querySelectorAll('.logo-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            input.closest('.logo-option').classList.add('selected');
+            changeLogo(input, e.target.result);
         };
         reader.readAsDataURL(file);
     }
