@@ -632,7 +632,7 @@ function createStickerElement(content, type) {
     } else {
         sticker.innerHTML = `
             <div class="sticker-content">
-                <img src="${content}" alt="Sticker" onerror="this.style.display='none'; this.parentElement.innerHTML='${getFallbackEmoji(content)}'">
+                <img src="${content}" alt="Sticker" crossorigin="anonymous" onerror="this.style.display='none'; this.parentElement.innerHTML='${getFallbackEmoji(content)}'">
             </div>
             <div class="sticker-controls">
                 <button class="sticker-delete" title="Delete sticker">×</button>
@@ -974,12 +974,9 @@ async function downloadWithHtml2Canvas() {
         scaleStyles(clone);
 
         // 2b. Specifically scale stickers and text using accurate bounding boxes
-        const originalPhotoStrip = document.getElementById('photoStrip');
-        const clonedPhotoStrip = clone.querySelector('#photoStrip');
-        const originalRect = originalPhotoStrip.getBoundingClientRect();
-
-        const originalStickers = originalPhotoStrip.querySelectorAll('.sticker');
-        const clonedStickers = clonedPhotoStrip.querySelectorAll('.sticker');
+        const originalRect = element.getBoundingClientRect();
+        const originalStickers = element.querySelectorAll('.sticker');
+        const clonedStickers = clone.querySelectorAll('.sticker');
 
         originalStickers.forEach((orig, index) => {
             const clonedSticker = clonedStickers[index];
@@ -996,15 +993,47 @@ async function downloadWithHtml2Canvas() {
             clonedSticker.style.margin = '0';
         });
 
+        // 2c. Wait for all images in clone to load BEFORE processing filters
+        const images = Array.from(clone.querySelectorAll('img'));
+        const bgImages = Array.from(clone.querySelectorAll('[style*="background-image"]'));
+
+        await Promise.all([
+            ...images.map(img => {
+                if (img.complete && img.naturalWidth !== 0) return Promise.resolve();
+                return new Promise(resolve => {
+                    img.onload = resolve;
+                    img.onerror = resolve;
+                    // Reset src to trigger load if it wasn't complete
+                    if (!img.complete) img.src = img.src;
+                });
+            }),
+            ...bgImages.map(el => {
+                const bg = el.style.backgroundImage;
+                const url = bg.match(/url\(["']?([^"']+)["']?\)/)?.[1];
+                if (!url) return Promise.resolve();
+                return new Promise(resolve => {
+                    const tempImg = new Image();
+                    tempImg.onload = resolve;
+                    tempImg.onerror = resolve;
+                    tempImg.src = url;
+                });
+            })
+        ]);
+
         // 3. Process images and apply filters
         const photoImages = clone.querySelectorAll('.strip-photo img');
         for (const img of photoImages) {
             const filterClass = Array.from(img.classList).find(c => c.startsWith('filter-'))?.replace('filter-', '');
 
             if (filterClass && filterClass !== 'normal') {
-                const filteredCanvas = await applyFilterToCanvas(img, filterClass);
-                img.src = filteredCanvas.toDataURL('image/png', 1.0);
-                img.className = ''; // Remove filter after applying to source
+                try {
+                    const filteredCanvas = await applyFilterToCanvas(img, filterClass);
+                    img.src = filteredCanvas.toDataURL('image/png');
+                    img.className = '';
+                } catch (filterErr) {
+                    console.warn("Filter application failed for an image:", filterErr);
+                    // Continue without filter rather than failing entirely
+                }
             }
 
             // Use background-image for better object-fit: cover compatibility in html2canvas
@@ -1020,29 +1049,15 @@ async function downloadWithHtml2Canvas() {
             el.style.display = 'none';
         });
 
-        // 5. Wait for all images in clone to load
-        const images = Array.from(clone.querySelectorAll('img, [style*="background-image"]'));
-        await Promise.all(images.map(img => {
-            if (img.tagName === 'IMG') {
-                if (img.complete) return Promise.resolve();
-                return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
-            } else {
-                const url = img.style.backgroundImage.slice(5, -2);
-                if (!url) return Promise.resolve();
-                const tempImg = new Image();
-                return new Promise(resolve => { tempImg.onload = resolve; tempImg.onerror = resolve; tempImg.src = url; });
-            }
-        }));
-
         // Small delay to ensure rendering is complete
         await new Promise(resolve => setTimeout(resolve, 300));
 
         // 6. Capture
         const canvas = await html2canvas(clone, {
-            scale: 1, // We already scaled the clone to 800px
-            logging: false,
+            scale: 1,
+            logging: true, // Enable logging to help debugging
             useCORS: true,
-            allowTaint: true,
+            allowTaint: false, // Don't allow taint if we want to use toDataURL
             backgroundColor: null,
             windowWidth: targetWidth,
             width: targetWidth
@@ -1071,11 +1086,8 @@ async function applyFilterToCanvas(imgElement, filterClass) {
     const ctx = canvas.getContext('2d');
 
     // Set canvas to original image size for best quality
-    canvas.width = imgElement.naturalWidth || imgElement.width;
-    canvas.height = imgElement.naturalHeight || imgElement.height;
-
-    // Draw original image
-    ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
+    canvas.width = imgElement.naturalWidth || imgElement.width || 300;
+    canvas.height = imgElement.naturalHeight || imgElement.height || 400;
 
     // Apply CSS filter if available
     if (CSS.supports('filter', 'contrast(1.1)')) {
@@ -1083,6 +1095,8 @@ async function applyFilterToCanvas(imgElement, filterClass) {
         ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
         ctx.filter = 'none';
     } else {
+        // Draw original image first for manual filter
+        ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
         // Fallback to manual filter application
         applyManualFilter(ctx, canvas, filterClass);
     }
