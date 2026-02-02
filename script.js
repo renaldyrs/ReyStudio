@@ -335,36 +335,48 @@ function takePhoto() {
         context.restore();
     }
 
-    // Create a square crop from the center
-    const size = Math.min(videoWidth, videoHeight);
-    const offsetX = (videoWidth - size) / 2;
-    const offsetY = (videoHeight - size) / 2;
+    // Create a 3:4 portrait rectangle crop from the center
+    const targetRatio = 3/4;
+    let targetWidth, targetHeight;
+
+    if (videoWidth / videoHeight > targetRatio) {
+        // Video is wider than 3:4
+        targetHeight = videoHeight;
+        targetWidth = targetHeight * targetRatio;
+    } else {
+        // Video is taller than 3:4
+        targetWidth = videoWidth;
+        targetHeight = targetWidth / targetRatio;
+    }
+
+    const offsetX = (videoWidth - targetWidth) / 2;
+    const offsetY = (videoHeight - targetHeight) / 2;
 
     // Create a new canvas for the cropped image
     const croppedCanvas = document.createElement('canvas');
     const croppedContext = croppedCanvas.getContext('2d');
-    croppedCanvas.width = size;
-    croppedCanvas.height = size;
+    croppedCanvas.width = targetWidth;
+    croppedCanvas.height = targetHeight;
 
     // Draw the cropped portion
     croppedContext.drawImage(
         canvas,
-        offsetX, offsetY, size, size, // source rectangle
-        0, 0, size, size              // destination rectangle
+        offsetX, offsetY, targetWidth, targetHeight, // source rectangle
+        0, 0, targetWidth, targetHeight              // destination rectangle
     );
 
-    // Resize to final output size (600x600 for high quality)
+    // Resize to final output size (600x800 for high quality portrait)
     const finalCanvas = document.createElement('canvas');
     const finalContext = finalCanvas.getContext('2d');
     finalCanvas.width = 600;
-    finalCanvas.height = 600;
+    finalCanvas.height = 800;
 
     // Use high-quality image scaling
     finalContext.imageSmoothingQuality = 'high';
     finalContext.drawImage(
         croppedCanvas,
-        0, 0, size, size,
-        0, 0, 600, 600
+        0, 0, targetWidth, targetHeight,
+        0, 0, 600, 800
     );
 
     const photoDataUrl = finalCanvas.toDataURL('image/png', 1.0); // Highest quality
@@ -464,7 +476,7 @@ function createFinalStrip() {
         img.style.objectFit = 'cover';
         img.style.width = '100%';
         img.style.height = '100%';
-        img.style.borderRadius = '10px';
+        img.style.borderRadius = '4px';
 
         photoDiv.appendChild(img);
         stripTemplate.appendChild(photoDiv);
@@ -926,12 +938,13 @@ async function downloadWithHtml2Canvas() {
 
         const clone = element.cloneNode(true);
         clone.style.width = targetWidth + 'px';
-        clone.style.position = 'fixed';
-        clone.style.left = '100vw';
+        clone.style.position = 'absolute';
+        clone.style.left = '-9999px';
         clone.style.top = '0';
         clone.style.margin = '0';
         clone.style.transform = 'none';
         clone.style.maxWidth = 'none';
+        clone.style.visibility = 'visible';
         document.body.appendChild(clone);
 
         // 2. Adjust styles of the clone for the new width
@@ -954,12 +967,13 @@ async function downloadWithHtml2Canvas() {
                 }
             });
 
-            // Handle photos specifically
+            // Handle photos specifically - ensure they maintain aspect ratio
             if (el.classList.contains('strip-photo')) {
-                const height = parseFloat(styles.height);
-                el.style.height = (height * scaleFactor) + 'px';
+                const width = parseFloat(styles.width);
+                el.style.width = (width * scaleFactor) + 'px';
+                el.style.height = (width * scaleFactor * (4/3)) + 'px';
+                el.style.aspectRatio = '3/4';
             }
-
 
             // Recurse
             Array.from(el.children).forEach(scaleStyles);
@@ -995,10 +1009,9 @@ async function downloadWithHtml2Canvas() {
             ...images.map(img => {
                 if (img.complete && img.naturalWidth !== 0) return Promise.resolve();
                 return new Promise(resolve => {
+                    img.crossOrigin = "anonymous";
                     img.onload = resolve;
                     img.onerror = resolve;
-                    // Reset src to trigger load if it wasn't complete
-                    if (!img.complete) img.src = img.src;
                 });
             }),
             ...bgImages.map(el => {
@@ -1007,6 +1020,7 @@ async function downloadWithHtml2Canvas() {
                 if (!url) return Promise.resolve();
                 return new Promise(resolve => {
                     const tempImg = new Image();
+                    tempImg.crossOrigin = "anonymous";
                     tempImg.onload = resolve;
                     tempImg.onerror = resolve;
                     tempImg.src = url;
@@ -1048,13 +1062,18 @@ async function downloadWithHtml2Canvas() {
 
         // 6. Capture
         const canvas = await html2canvas(clone, {
-            scale: 1,
-            logging: true, // Enable logging to help debugging
+            scale: 2, // Use higher scale for better print quality
+            logging: true,
             useCORS: true,
-            allowTaint: false, // Don't allow taint if we want to use toDataURL
+            allowTaint: false,
             backgroundColor: null,
-            windowWidth: targetWidth,
-            width: targetWidth
+            width: targetWidth,
+            height: clone.offsetHeight,
+            onclone: (clonedDoc) => {
+                // Additional adjustments if needed during capture
+                const clonedElement = clonedDoc.querySelector('.strip-preview');
+                if (clonedElement) clonedElement.style.visibility = 'visible';
+            }
         });
 
         // 7. Cleanup and download

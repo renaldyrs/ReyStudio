@@ -701,10 +701,10 @@ body {
 
 .strip-preview {
     background: white;
-    border-radius: 25px;
+    border-radius: 15px;
     padding: 1.5rem;
     width: 100%;
-    max-width: 400px;
+    max-width: 320px;
     box-shadow: 
         0 20px 40px rgba(0, 0, 0, 0.1),
         0 0 0 1px rgba(255, 255, 255, 0.1);
@@ -754,9 +754,10 @@ body {
 
 .strip-photo {
     width: 100%;
-    height: 140px;
+    aspect-ratio: 3/4;
+    height: auto;
     background: #f8f9fa;
-    border-radius: 15px;
+    border-radius: 4px;
     overflow: hidden;
     position: relative;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -764,7 +765,8 @@ body {
 }
 
 .vertical-6 .strip-photo {
-    height: 120px;
+    height: auto;
+    aspect-ratio: 3/4;
 }
 
 .strip-photo:hover {
@@ -1571,12 +1573,14 @@ body {
     }
     
     .strip-photo {
-        height: 120px;
-        border-radius: 12px;
+        height: auto;
+        aspect-ratio: 3/4;
+        border-radius: 4px;
     }
     
     .vertical-6 .strip-photo {
-        height: 100px;
+        height: auto;
+        aspect-ratio: 3/4;
     }
     
     /* Customization tabs mobile */
@@ -1734,15 +1738,17 @@ body {
     
     .strip-preview {
         width: 90%;
-        max-width: 380px;
+        max-width: 320px;
     }
     
     .strip-photo {
-        height: 130px;
+        height: auto;
+        aspect-ratio: 3/4;
     }
     
     .vertical-6 .strip-photo {
-        height: 110px;
+        height: auto;
+        aspect-ratio: 3/4;
     }
     
     .options-grid {
@@ -1753,7 +1759,7 @@ body {
 /* Desktop large screens */
 @media (min-width: 1025px) {
     .strip-preview {
-        max-width: 400px;
+        max-width: 320px;
         transition: all 0.3s ease;
     }
     
@@ -1762,11 +1768,13 @@ body {
     }
     
     .strip-photo {
-        height: 140px;
+        height: auto;
+        aspect-ratio: 3/4;
     }
     
     .vertical-6 .strip-photo {
-        height: 120px;
+        height: auto;
+        aspect-ratio: 3/4;
     }
 }
 
@@ -1781,15 +1789,17 @@ body {
     }
     
     .strip-preview {
-        max-width: 450px;
+        max-width: 360px;
     }
     
     .strip-photo {
-        height: 160px;
+        height: auto;
+        aspect-ratio: 3/4;
     }
     
     .vertical-6 .strip-photo {
-        height: 140px;
+        height: auto;
+        aspect-ratio: 3/4;
     }
 }
 
@@ -1808,11 +1818,13 @@ body {
     }
     
     .strip-photo {
-        height: 100px;
+        height: auto;
+        aspect-ratio: 3/4;
     }
     
     .vertical-6 .strip-photo {
-        height: 90px;
+        height: auto;
+        aspect-ratio: 3/4;
     }
     
     .photo-footer {
@@ -1861,11 +1873,13 @@ body {
     }
     
     .strip-photo {
-        height: 80px;
+        height: auto;
+        aspect-ratio: 3/4;
     }
     
     .vertical-6 .strip-photo {
-        height: 70px;
+        height: auto;
+        aspect-ratio: 3/4;
     }
 }
 
