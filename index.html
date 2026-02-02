@@ -110,6 +110,16 @@
             <p class="screen-description">Select a layout and overlay style for your photo strip</p>
         </div>
 
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="openTemplateTab('templates-tab')">
+                <span class="tab-icon">📐</span>
+                <span>Layout</span>
+            </button>
+            <button class="tab-btn" onclick="openTemplateTab('overlays-tab')">
+                <span class="tab-icon">🖼️</span>
+                <span>Overlay</span>
+            </button>
+        </div>
 
         <div id="templates-tab" class="tab-content active">
             <div class="template-options">
@@ -121,6 +131,7 @@
                         <div class="template-preview-cell cell-2"></div>
                         <div class="template-preview-cell cell-3"></div>
                         <div class="template-preview-cell cell-4"></div>
+                        <div class="template-overlay"></div>
                     </div>
                 </div>
                 <div class="template-option vertical-6" onclick="selectTemplate(this, 'vertical-6')">
@@ -133,11 +144,49 @@
                         <div class="template-preview-cell"></div>
                         <div class="template-preview-cell"></div>
                         <div class="template-preview-cell"></div>
+                        <div class="template-overlay"></div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <div id="overlays-tab" class="tab-content">
+            <div class="overlay-options">
+                <div class="overlay-option selected" onclick="selectOverlay('none')">
+                    <div class="overlay-preview clean-preview">
+                        <span class="preview-icon">✨</span>
+                    </div>
+                    <div class="overlay-name">Classic</div>
+                </div>
+                <div class="overlay-option" onclick="selectOverlay('overlay/overlay1.png')">
+                    <div class="overlay-preview floral-preview">
+                        <img src="overlay/overlay1.png" style="width:100%; height:100%; object-fit:contain;">
+                    </div>
+                    <div class="overlay-name">Floral</div>
+                </div>
+                <div class="overlay-option" onclick="selectOverlay('overlay/overlay2.png')">
+                    <div class="overlay-preview polaroid-preview">
+                        <img src="overlay/overlay2.png" style="width:100%; height:100%; object-fit:contain;">
+                    </div>
+                    <div class="overlay-name">Polaroid</div>
+                </div>
+                <div class="overlay-option" onclick="selectOverlay('overlay/overlay3.png')">
+                    <div class="overlay-preview vintage-preview">
+                        <img src="overlay/overlay3.png" style="width:100%; height:100%; object-fit:contain;">
+                    </div>
+                    <div class="overlay-name">Vintage</div>
+                </div>
+                <div class="overlay-option upload-option" onclick="document.getElementById('overlayUpload').click()">
+                    <div class="overlay-preview custom-preview">
+                        <div class="upload-content">
+                            <span class="upload-icon">📁</span>
+                        </div>
+                    </div>
+                    <div class="overlay-name">Custom</div>
+                    <input type="file" id="overlayUpload" accept="image/*" style="display: none;" onchange="uploadOverlay(this)">
+                </div>
+            </div>
+        </div>
         
         <div class="action-buttons">
             <button class="secondary-button" onclick="showScreen('screen2')">
@@ -182,7 +231,7 @@
                     </button>
                     <div class="photos-count">
                         <span class="photos-icon">📸</span>
-                        <span id="photosCount">0</span>/<span id="maxPhotos">2</span>
+                        <span id="photosCount">0</span>/<span id="maxPhotos">4</span>
                     </div>
                 </div>
             </div>
@@ -260,6 +309,10 @@
                     <span class="tab-icon">🎨</span>
                     <span>Background</span>
                 </button>
+                <button class="tab-btn" onclick="openTab('filter-tab')">
+                    <span class="tab-icon">🎬</span>
+                    <span>Filters</span>
+                </button>
                 <button class="tab-btn" onclick="openTab('sticker-tab')">
                     <span class="tab-icon">✨</span>
                     <span>Stickers</span>
@@ -272,6 +325,47 @@
                     <span class="tab-icon">🏷️</span>
                     <span>Logo</span>
                 </button>
+            </div>
+
+            <div id="filter-tab" class="tab-content">
+                <div class="options-grid">
+                    <div class="filter-option selected" onclick="applyFilter('normal')">
+                        <div class="filter-preview filter-normal">
+                            <span class="filter-icon">🌅</span>
+                        </div>
+                        <div class="option-name">Normal</div>
+                    </div>
+                    <div class="filter-option" onclick="applyFilter('clarendon')">
+                        <div class="filter-preview filter-clarendon">
+                            <span class="filter-icon">🌟</span>
+                        </div>
+                        <div class="option-name">Clarendon</div>
+                    </div>
+                    <div class="filter-option" onclick="applyFilter('gingham')">
+                        <div class="filter-preview filter-gingham">
+                            <span class="filter-icon">🎞️</span>
+                        </div>
+                        <div class="option-name">Gingham</div>
+                    </div>
+                    <div class="filter-option" onclick="applyFilter('moon')">
+                        <div class="filter-preview filter-moon">
+                            <span class="filter-icon">🌙</span>
+                        </div>
+                        <div class="option-name">Moon</div>
+                    </div>
+                    <div class="filter-option" onclick="applyFilter('lark')">
+                        <div class="filter-preview filter-lark">
+                            <span class="filter-icon">🐦</span>
+                        </div>
+                        <div class="option-name">Lark</div>
+                    </div>
+                    <div class="filter-option" onclick="applyFilter('reyes')">
+                        <div class="filter-preview filter-reyes">
+                            <span class="filter-icon">☀️</span>
+                        </div>
+                        <div class="option-name">Reyes</div>
+                    </div>
+                </div>
             </div>
 
             <div id="background-tab" class="tab-content active">

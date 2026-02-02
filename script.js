@@ -61,6 +61,8 @@ let startX = 0;
 let startY = 0;
 let startStickerX = 0;
 let startStickerY = 0;
+let startStickerLeft = 0;
+let startStickerTop = 0;
 let startWidth = 0;
 let startHeight = 0;
 
@@ -80,36 +82,48 @@ function showScreen(screenId) {
 
 // Tab navigation for template selection
 function openTemplateTab(tabId) {
-    document.querySelectorAll('#screen3-template .tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    document.querySelectorAll('#screen3-template .tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
+    const tabNav = document.querySelector('#screen3-template .tab-nav');
+    const tabButtons = tabNav.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('#screen3-template .tab-content');
 
-    document.getElementById(tabId).classList.add('active');
-    event.currentTarget.classList.add('active');
+    tabContents.forEach(tab => tab.classList.remove('active'));
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) targetTab.classList.add('active');
+
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+    }
 }
 
 // Tab navigation for customization
 function openTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
+    const tabNav = document.querySelector('#screen5-preview .tab-nav');
+    const tabButtons = tabNav.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('#screen5-preview .tab-content');
 
-    document.getElementById(tabId).classList.add('active');
-    event.currentTarget.classList.add('active');
+    tabContents.forEach(tab => tab.classList.remove('active'));
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) targetTab.classList.add('active');
+
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+    }
 }
 
 // Select template
 function selectTemplate(element, templateType) {
+    const templateOption = element.closest('.template-option');
+    if (!templateOption) return;
+
     document.querySelectorAll('.template-option').forEach(option => {
         option.classList.remove('selected');
     });
-    element.classList.add('selected');
+
+    templateOption.classList.add('selected');
     selectedTemplate = templateType;
     photosNeeded = templateConfig[templateType].photosNeeded;
     
@@ -124,11 +138,14 @@ function selectTemplate(element, templateType) {
 function selectOverlay(overlayUrl) {
     currentOverlay = overlayUrl;
     
+    const element = event.currentTarget.closest('.overlay-option');
+    if (!element) return;
+
     // Update selected state in UI
     document.querySelectorAll('.overlay-option').forEach(option => {
         option.classList.remove('selected');
     });
-    event.currentTarget.classList.add('selected');
+    element.classList.add('selected');
     
     // Update the overlay preview in all templates
     updateTemplateOverlayPreview();
@@ -471,11 +488,14 @@ function createFinalStrip() {
 function applyFilter(filterName) {
     selectedFilter = filterName;
 
+    const element = event.currentTarget.closest('.filter-option');
+    if (!element) return;
+
     // Update selected state in UI
     document.querySelectorAll('.filter-option').forEach(option => {
         option.classList.remove('selected');
     });
-    event.currentTarget.classList.add('selected');
+    element.classList.add('selected');
 
     // Apply filter to all photos
     const allPhotos = document.querySelectorAll('.strip-photo img');
@@ -714,9 +734,11 @@ function startDrag(clientX, clientY, sticker) {
     isDragging = true;
     activeSticker.classList.add('sticker-active');
 
-    const rect = sticker.getBoundingClientRect();
-    startStickerX = clientX - rect.left;
-    startStickerY = clientY - rect.top;
+    // Use current position from styles to avoid jumping
+    startStickerX = clientX;
+    startStickerY = clientY;
+    startStickerLeft = parseFloat(sticker.style.left) || 0;
+    startStickerTop = parseFloat(sticker.style.top) || 0;
 
     // Add global event listeners
     document.addEventListener('mousemove', dragSticker);
@@ -748,15 +770,11 @@ function startResize(clientX, clientY, sticker) {
 function dragSticker(e) {
     if (!activeSticker || !isDragging) return;
 
-    const container = document.getElementById('stripTemplate');
-    const containerRect = container.getBoundingClientRect();
+    let dx = e.clientX - startStickerX;
+    let dy = e.clientY - startStickerY;
 
-    let newLeft = e.clientX - containerRect.left - startStickerX;
-    let newTop = e.clientY - containerRect.top - startStickerY;
-
-    // Allow stickers to be positioned anywhere in the preview area
-    activeSticker.style.left = `${newLeft}px`;
-    activeSticker.style.top = `${newTop}px`;
+    activeSticker.style.left = `${startStickerLeft + dx}px`;
+    activeSticker.style.top = `${startStickerTop + dy}px`;
 }
 
 // Drag sticker - Touch
@@ -764,16 +782,12 @@ function dragStickerTouch(e) {
     if (!activeSticker || !isDragging) return;
     e.preventDefault();
 
-    const container = document.getElementById('stripTemplate');
-    const containerRect = container.getBoundingClientRect();
     const touch = e.touches[0];
+    let dx = touch.clientX - startStickerX;
+    let dy = touch.clientY - startStickerY;
 
-    let newLeft = touch.clientX - containerRect.left - startStickerX;
-    let newTop = touch.clientY - containerRect.top - startStickerY;
-
-    // Allow stickers to be positioned anywhere in the preview area
-    activeSticker.style.left = `${newLeft}px`;
-    activeSticker.style.top = `${newTop}px`;
+    activeSticker.style.left = `${startStickerLeft + dx}px`;
+    activeSticker.style.top = `${startStickerTop + dy}px`;
 }
 
 // Resize sticker - Mouse
@@ -901,101 +915,145 @@ function uploadOverlay(input) {
 // Download photo
 async function downloadWithHtml2Canvas() {
     const element = document.getElementById("capture-container");
+    const downloadBtn = document.getElementById('downloadBtn');
     const spinner = document.getElementById('downloadSpinner');
     const errorMsg = document.getElementById('downloadError');
 
     // Show loading spinner
-    spinner.style.display = 'block';
+    downloadBtn.classList.add('loading');
     errorMsg.style.display = 'none';
-    document.getElementById('downloadBtn').disabled = true;
+    downloadBtn.disabled = true;
 
     try {
-        // Hide elements that shouldn't appear in download
-        const elementsToHide = document.querySelectorAll('.sticker-controls, .sticker-resize');
-        const originalDisplay = [];
-        elementsToHide.forEach(el => {
-            originalDisplay.push(el.style.display);
+        // 1. Create a high-res clone for capture
+        const originalWidth = element.offsetWidth;
+        const targetWidth = 800; // Fixed width for consistent high quality
+        const scaleFactor = targetWidth / originalWidth;
+
+        const clone = element.cloneNode(true);
+        clone.style.width = targetWidth + 'px';
+        clone.style.position = 'fixed';
+        clone.style.left = '100vw';
+        clone.style.top = '0';
+        clone.style.margin = '0';
+        clone.style.transform = 'none';
+        clone.style.maxWidth = 'none';
+        document.body.appendChild(clone);
+
+        // 2. Adjust styles of the clone for the new width
+        const scaleStyles = (el) => {
+            const styles = window.getComputedStyle(el);
+
+            // Scale padding, gap, border-radius, font-size, border-width
+            const propsToScale = [
+                'padding', 'paddingLeft', 'paddingRight', 'paddingTop', 'paddingBottom',
+                'gap', 'borderRadius', 'fontSize',
+                'marginTop', 'marginBottom', 'marginLeft', 'marginRight',
+                'borderWidth', 'borderTopWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderRightWidth',
+                'outlineWidth'
+            ];
+            propsToScale.forEach(prop => {
+                const val = styles[prop];
+                if (val && val.includes('px')) {
+                    const num = parseFloat(val);
+                    el.style[prop] = (num * scaleFactor) + 'px';
+                }
+            });
+
+            // Handle photos specifically
+            if (el.classList.contains('strip-photo')) {
+                const height = parseFloat(styles.height);
+                el.style.height = (height * scaleFactor) + 'px';
+            }
+
+
+            // Recurse
+            Array.from(el.children).forEach(scaleStyles);
+        };
+
+        scaleStyles(clone);
+
+        // 2b. Specifically scale stickers and text using accurate bounding boxes
+        const originalPhotoStrip = document.getElementById('photoStrip');
+        const clonedPhotoStrip = clone.querySelector('#photoStrip');
+        const originalRect = originalPhotoStrip.getBoundingClientRect();
+
+        const originalStickers = originalPhotoStrip.querySelectorAll('.sticker');
+        const clonedStickers = clonedPhotoStrip.querySelectorAll('.sticker');
+
+        originalStickers.forEach((orig, index) => {
+            const clonedSticker = clonedStickers[index];
+            const rect = orig.getBoundingClientRect();
+
+            const relLeft = rect.left - originalRect.left;
+            const relTop = rect.top - originalRect.top;
+
+            clonedSticker.style.left = (relLeft * scaleFactor) + 'px';
+            clonedSticker.style.top = (relTop * scaleFactor) + 'px';
+            clonedSticker.style.width = (rect.width * scaleFactor) + 'px';
+            clonedSticker.style.height = (rect.height * scaleFactor) + 'px';
+            clonedSticker.style.transform = 'none';
+            clonedSticker.style.margin = '0';
+        });
+
+        // 3. Process images and apply filters
+        const photoImages = clone.querySelectorAll('.strip-photo img');
+        for (const img of photoImages) {
+            const filterClass = Array.from(img.classList).find(c => c.startsWith('filter-'))?.replace('filter-', '');
+
+            if (filterClass && filterClass !== 'normal') {
+                const filteredCanvas = await applyFilterToCanvas(img, filterClass);
+                img.src = filteredCanvas.toDataURL('image/png', 1.0);
+                img.className = ''; // Remove filter after applying to source
+            }
+
+            // Use background-image for better object-fit: cover compatibility in html2canvas
+            const parent = img.parentElement;
+            parent.style.backgroundImage = `url('${img.src}')`;
+            parent.style.backgroundSize = 'cover';
+            parent.style.backgroundPosition = 'center';
+            img.style.opacity = '0';
+        }
+
+        // 4. Hide controls and resize handles in the clone
+        clone.querySelectorAll('.sticker-controls, .sticker-resize-handle').forEach(el => {
             el.style.display = 'none';
         });
 
-        // Process images with filters
-        const photoImages = document.querySelectorAll('.strip-photo img');
-        const processedData = [];
-
-        for (const img of photoImages) {
-            const filterClass = img.className.replace('filter-', '');
-            if (filterClass && filterClass !== 'normal') {
-                const canvas = await applyFilterToCanvas(img, filterClass);
-                processedData.push({
-                    imgElement: img,
-                    originalSrc: img.src,
-                    tempSrc: canvas.toDataURL('image/png', 1.0) // Highest quality
-                });
-                img.src = canvas.toDataURL('image/png', 1.0);
-                img.className = ''; // Remove filter class temporarily
+        // 5. Wait for all images in clone to load
+        const images = Array.from(clone.querySelectorAll('img, [style*="background-image"]'));
+        await Promise.all(images.map(img => {
+            if (img.tagName === 'IMG') {
+                if (img.complete) return Promise.resolve();
+                return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+            } else {
+                const url = img.style.backgroundImage.slice(5, -2);
+                if (!url) return Promise.resolve();
+                const tempImg = new Image();
+                return new Promise(resolve => { tempImg.onload = resolve; tempImg.onerror = resolve; tempImg.src = url; });
             }
-        }
+        }));
 
-        // Wait for images to load
-        await new Promise(resolve => {
-            let loadedCount = 0;
-            const totalImages = photoImages.length;
-            if (totalImages === 0) return resolve();
+        // Small delay to ensure rendering is complete
+        await new Promise(resolve => setTimeout(resolve, 300));
 
-            photoImages.forEach(img => {
-                img.onload = () => {
-                    loadedCount++;
-                    if (loadedCount === totalImages) resolve();
-                };
-                // Trigger reload if already cached
-                if (img.complete) img.src = img.src;
-            });
-        });
-
-        // Create a temporary container with higher resolution
-        const tempContainer = document.createElement('div');
-        tempContainer.style.position = 'absolute';
-        tempContainer.style.left = '-9999px';
-        tempContainer.style.width = element.offsetWidth + 'px'; // Match preview width
-        tempContainer.style.height = 'auto';
-        tempContainer.style.transform = 'scale(2)'; // Scale up for higher resolution
-        tempContainer.style.transformOrigin = 'top left';
-
-        // Clone the original element
-        const clone = element.cloneNode(true);
-        tempContainer.appendChild(clone);
-        document.body.appendChild(tempContainer);
-
-        // Use html2canvas with optimized settings
+        // 6. Capture
         const canvas = await html2canvas(clone, {
-            scale: 2, // Higher scale for better quality
+            scale: 1, // We already scaled the clone to 800px
             logging: false,
             useCORS: true,
             allowTaint: true,
             backgroundColor: null,
-            quality: 1, // Highest quality
-            letterRendering: true,
-            removeContainer: true // Remove temp container after rendering
+            windowWidth: targetWidth,
+            width: targetWidth
         });
 
-        // Remove temporary container
-        document.body.removeChild(tempContainer);
+        // 7. Cleanup and download
+        document.body.removeChild(clone);
 
-        // Restore original images
-        processedData.forEach(data => {
-            data.imgElement.src = data.originalSrc;
-            data.imgElement.className = `filter-${data.imgElement.className}`;
-        });
-
-        // Restore hidden elements
-        elementsToHide.forEach((el, i) => {
-            el.style.display = originalDisplay[i];
-        });
-
-        // Create download link
         const link = document.createElement('a');
-        link.download = 'rey-studio-photo.png';
-        link.href = canvas.toDataURL('image/png', 1.0); // Highest quality
+        link.download = `rey-studio-${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png', 1.0);
         link.click();
 
     } catch (err) {
@@ -1003,8 +1061,8 @@ async function downloadWithHtml2Canvas() {
         errorMsg.textContent = "Failed to generate image. Please try again.";
         errorMsg.style.display = 'block';
     } finally {
-        spinner.style.display = 'none';
-        document.getElementById('downloadBtn').disabled = false;
+        downloadBtn.classList.remove('loading');
+        downloadBtn.disabled = false;
     }
 }
 
